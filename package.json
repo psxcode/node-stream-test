@@ -1,5 +1,5 @@
 {
-  "name": "@psxcode/node-stream-test",
+  "name": "node-stream-test",
   "version": "0.1.0",
   "main": "build/index.js",
   "module": "build/index",
