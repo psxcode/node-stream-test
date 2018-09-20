@@ -6,9 +6,9 @@
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@psxcode/compose/-/compose-0.1.2.tgz#b310dc1a14a6c57f2a8e176456499d38bb838aae"
 
-"@psxcode/wait@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@psxcode/wait/-/wait-0.1.0.tgz#fe9328638ed08a78cb49f2bb5323f5a69681e9fc"
+"@psxcode/wait@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@psxcode/wait/-/wait-0.1.1.tgz#9462de148dcb67bdeb98e8adf274d23f86839546"
 
 "@types/chai@^4.1.4":
   version "4.1.4"
