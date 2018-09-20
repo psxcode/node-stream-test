@@ -1,5 +1,6 @@
 --ui bdd
 --recursive
 --require tshook.js
+--require esm
 --watch-extensions ts
 src/**/*.spec.ts
