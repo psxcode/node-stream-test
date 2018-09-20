@@ -1,6 +1,10 @@
 import ReadableStream = NodeJS.ReadableStream
 
-const dataConsumer = (log: typeof console.log) =>
+export type DataConsumerOptions = {
+  log: typeof console.log
+}
+
+const dataConsumer = ({ log }: DataConsumerOptions) =>
   <T> (stream: ReadableStream, sink: (data: T) => void) => {
     let i = 0
     const onDataEvent = (chunk: T) => {

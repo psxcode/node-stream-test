@@ -51,7 +51,7 @@ describe('[ stream-test / readable ]', function () {
     xdescribe('[ LAZY-SYNC-PRODUCER ]', () => {
       readableTest(makeStrings(8),
         (data) => readable({ log: logProducer })({ encoding: 'utf8' })(data),
-        dataConsumer(logConsumer),
+        dataConsumer({ log: logConsumer }),
         expectSameCallCount)
     })
 
@@ -63,7 +63,7 @@ describe('[ stream-test / readable ]', function () {
     xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
       readableTest(makeStrings(8),
         (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8', highWaterMark: 64 })(data),
-        dataConsumer(logConsumer),
+        dataConsumer({ log: logConsumer }),
         expectSameCallCount)
     })
 
@@ -75,7 +75,7 @@ describe('[ stream-test / readable ]', function () {
     xdescribe('[ EAGER-ASYNC-PRODUCER ]', () => {
       readableTest(makeStrings(8),
         (data) => readable({ eager: true, delayMs: 20, log: logProducer })({ encoding: 'utf8' })(data),
-        dataConsumer(logConsumer),
+        dataConsumer({ log: logConsumer }),
         expectSameCallCount)
     })
   })
@@ -94,7 +94,7 @@ describe('[ stream-test / readable ]', function () {
     /* EAGER-SYNC-PRODUCER */
     readableTest(makeStrings(8),
       (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8', highWaterMark: 64 })(data),
-      (stream, spy) => readableConsumer(stream, spy, { eager: true, log: logConsumer }),
+      (stream, spy) => readableConsumer({ eager: true, log: logConsumer })(stream, spy),
       expectSameData)
   })
 
@@ -109,7 +109,7 @@ describe('[ stream-test / readable ]', function () {
     xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
       readableTest(makeStrings(8),
         (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8' })(data),
-        (stream, spy) => readableConsumer(stream, spy, { log: logConsumer }),
+        (stream, spy) => readableConsumer({ log: logConsumer })(stream, spy),
         expectSameData)
     })
   })
@@ -128,7 +128,7 @@ describe('[ stream-test / readable ]', function () {
     xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
       readableTest(makeStrings(8),
         (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8' })(data),
-        (stream, spy) => readableConsumer(stream, spy, { delayMs: 0, log: logConsumer }),
+        (stream, spy) => readableConsumer({ delayMs: 0, log: logConsumer })(stream, spy),
         expectSameData)
     })
   })

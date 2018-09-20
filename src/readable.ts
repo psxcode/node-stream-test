@@ -3,7 +3,7 @@ import { Readable, ReadableOptions } from 'stream'
 import { iterate } from 'iterama'
 import isPositiveNumber from './is-positive-number'
 
-export interface IMakeReadableOptions {
+export type MakeReadableOptions = {
   log: typeof console.log
   errorAtStep?: number
   errorBehavior?: 'break' | 'continue',
@@ -11,9 +11,9 @@ export interface IMakeReadableOptions {
   eager?: boolean
 }
 
-const readable = ({ log, errorAtStep, errorBehavior, eager, delayMs }: IMakeReadableOptions) =>
-  (readableOptions: ReadableOptions) => {
-    return <T> (iterable: Iterable<T>) => {
+const readable = ({ log, errorAtStep, errorBehavior, eager, delayMs }: MakeReadableOptions) =>
+  (readableOptions: ReadableOptions) =>
+    <T> (iterable: Iterable<T>) => {
       let i = 0
       let inProgress = false
       const iterator = iterate(iterable)
@@ -77,6 +77,5 @@ const readable = ({ log, errorAtStep, errorBehavior, eager, delayMs }: IMakeRead
       })
       return readable
     }
-  }
 
 export default readable
