@@ -1,4 +1,4 @@
-import debug from 'debug'
+import * as debug from 'debug'
 import readable from './readable'
 import readableTest from './readable-test'
 import makeStrings from './make-strings'
@@ -48,7 +48,7 @@ describe('[ stream-test / readable ]', function () {
     /**
      * for every single 'push' one 'data' event
      */
-    xdescribe('[ LAZY-SYNC-PRODUCER ]', () => {
+    describe('[ LAZY-SYNC-PRODUCER ]', () => {
       readableTest(makeStrings(8),
         (data) => readable({ log: logProducer })({ encoding: 'utf8' })(data),
         dataConsumer({ log: logConsumer }),
@@ -91,11 +91,12 @@ describe('[ stream-test / readable ]', function () {
    * Bad, not optimal
    */
   describe('[ eager-readable consumer ]', () => {
-    /* EAGER-SYNC-PRODUCER */
-    readableTest(makeStrings(8),
-      (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8', highWaterMark: 64 })(data),
-      (stream, spy) => readableConsumer({ eager: true, log: logConsumer })(stream, spy),
-      expectSameData)
+    xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
+      readableTest(makeStrings(8),
+        (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8', highWaterMark: 64 })(data),
+        (stream, spy) => readableConsumer({ eager: true, log: logConsumer })(stream, spy),
+        expectSameData)
+    })
   })
 
   /**

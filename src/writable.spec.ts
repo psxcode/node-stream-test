@@ -12,7 +12,7 @@ const producerLog = debug('producer')
 describe('[ writable ]', function () {
   this.slow(1000)
 
-  xdescribe('[]', () => {
+  xdescribe('[ writable ]', () => {
     writableTest(makeStrings(8),
       (spy) => writable({ delayMs: 10, log: writableLog })({ highWaterMark: 256, decodeStrings: false })(spy),
       (stream, data) => producer({ eager: true, log: producerLog })(iterate(data))(stream),
