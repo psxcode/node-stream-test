@@ -21,10 +21,8 @@ const transformTest = <T> (
     const transforms = ensureArray(makeTransforms())
     await wait(100)
     readable.pipe(transforms[0])
-    for (let i = 0; i < transforms.length; ++i) {
-      if (i + 1 < transforms.length) {
-        transforms[i].pipe(transforms[i + 1])
-      }
+    for (let i = 1; i < transforms.length; ++i) {
+      transforms[i - 1].pipe(transforms[i])
     }
     const stream = transforms[transforms.length - 1].pipe(writable)
     await waitForEvents('end', 'error')(stream)
