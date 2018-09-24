@@ -21,7 +21,7 @@ const readableConsumer = ({ log, delayMs, readSize, eager }: ReadableConsumerOpt
     const lazyReader = (i: number) => {
       let chunk: T
       log('lazy read at %d begin', i);
-      (chunk = stream.read() as any) && sink(chunk)
+      (chunk = stream.read(readSize) as any) && sink(chunk)
       log('lazy read at %d done', i)
     }
     const asyncHandler = () => {
@@ -50,7 +50,7 @@ const readableConsumer = ({ log, delayMs, readSize, eager }: ReadableConsumerOpt
       stream.on('readable', isPositiveNumber(delayMs)
         ? asyncHandler
         : syncHandler)
-      stream.once('end', unsubscribe)
+      stream.on('end', unsubscribe)
       return unsubscribe
     }
   }
