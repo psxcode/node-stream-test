@@ -1,13 +1,13 @@
 import { Writable, WritableOptions } from 'stream'
 import isPositiveNumber from './is-positive-number'
 
-export type WritableConsumer = {
+export type MakeWritableOptions = {
   log: typeof console.log
   delayMs?: number
   errorAtStep?: number
 }
 
-const writable = ({ delayMs, errorAtStep, log }: WritableConsumer) =>
+const writable = ({ delayMs, errorAtStep, log }: MakeWritableOptions) =>
   (writableOptions: WritableOptions = {}) =>
     <T> (sink: (data: T) => void) => {
       let i = 0
