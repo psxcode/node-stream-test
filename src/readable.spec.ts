@@ -7,7 +7,7 @@ import readableConsumer from './readable-consumer'
 import expectSameCallCount from './expect-same-call-count'
 import expectSameData from './expect-same-data'
 
-const logProducer = debug('producer')
+const logReadable = debug('readable')
 const logConsumer = debug('consumer')
 
 /**
@@ -49,8 +49,9 @@ describe('[ stream-test / readable ]', function () {
      * for every single 'push' one 'data' event
      */
     describe('[ LAZY-SYNC-PRODUCER ]', () => {
-      readableTest(makeStrings(8),
-        (data) => readable({ log: logProducer })({ encoding: 'utf8' })(data),
+      readableTest(
+        makeStrings(8),
+        readable({ log: logReadable })({ encoding: 'utf8' }),
         dataConsumer({ log: logConsumer }),
         expectSameCallCount)
     })
@@ -61,8 +62,9 @@ describe('[ stream-test / readable ]', function () {
      * number os 'data' equals number of 'push'
      */
     xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(makeStrings(8),
-        (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8', highWaterMark: 64 })(data),
+      readableTest(
+        makeStrings(8),
+        readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 }),
         dataConsumer({ log: logConsumer }),
         expectSameCallCount)
     })
@@ -73,8 +75,9 @@ describe('[ stream-test / readable ]', function () {
      */
 
     xdescribe('[ EAGER-ASYNC-PRODUCER ]', () => {
-      readableTest(makeStrings(8),
-        (data) => readable({ eager: true, delayMs: 20, log: logProducer })({ encoding: 'utf8' })(data),
+      readableTest(
+        makeStrings(8),
+        readable({ eager: true, delayMs: 20, log: logReadable })({ encoding: 'utf8' }),
         dataConsumer({ log: logConsumer }),
         expectSameCallCount)
     })
@@ -92,9 +95,10 @@ describe('[ stream-test / readable ]', function () {
    */
   describe('[ eager-readable consumer ]', () => {
     xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(makeStrings(8),
-        (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8', highWaterMark: 64 })(data),
-        (stream, spy) => readableConsumer({ eager: true, log: logConsumer })(stream, spy),
+      readableTest(
+        makeStrings(8),
+        readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 }),
+        readableConsumer({ eager: true, log: logConsumer }),
         expectSameData)
     })
   })
@@ -108,9 +112,10 @@ describe('[ stream-test / readable ]', function () {
    */
   describe('[ lazy-readable consumer ]', () => {
     xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(makeStrings(8),
-        (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8' })(data),
-        (stream, spy) => readableConsumer({ log: logConsumer })(stream, spy),
+      readableTest(
+        makeStrings(8),
+        readable({ eager: true, log: logReadable })({ encoding: 'utf8' }),
+        readableConsumer({ log: logConsumer }),
         expectSameData)
     })
   })
@@ -127,9 +132,10 @@ describe('[ stream-test / readable ]', function () {
    */
   describe('[ lazy-async-readable consumer ]', () => {
     xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(makeStrings(8),
-        (data) => readable({ eager: true, log: logProducer })({ encoding: 'utf8' })(data),
-        (stream, spy) => readableConsumer({ delayMs: 0, log: logConsumer })(stream, spy),
+      readableTest(
+        makeStrings(8),
+        readable({ eager: true, log: logReadable })({ encoding: 'utf8' }),
+        readableConsumer({ delayMs: 0, log: logConsumer }),
         expectSameData)
     })
   })
