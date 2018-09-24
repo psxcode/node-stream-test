@@ -170,11 +170,13 @@ simple boilerplate to test `Readable` stream. Should be placed inside `describe(
 ```ts
 import { readableTest } from 'node-stream-test'
 
-readableTest(
-  ['a', 'b', 'c', 'd', 'e'],
-  readable({ log: logReadable })({ encoding: 'utf8' }),
-  dataConsumer({ log: logConsumer }),
-  expectSameCallCount)
+describe('readable test', () => {
+  readableTest(
+    ['a', 'b', 'c', 'd', 'e'],
+    readable({ log: console.log })({ encoding: 'utf8' }),
+    dataConsumer({ log: console.log }),
+    (data, spy) => expect(data).deep.equals(spy.data)
+  )
 })
 ```
 
@@ -187,6 +189,18 @@ simple boilerplate to test `Writable` stream. Should be placed inside `describe(
   makeProducer: (stream: WritableStream, data: Iterable<T>) => () => void,
   expectFn?: (data: Iterable<T>, spy: SpyFn<T>) => void
 ) => void
+```
+```ts
+import { writableTest } from 'node-stream-test
+
+describe('writable test', () => {
+  writableTest(
+    ['a', 'b', 'c', 'd', 'e'],
+    writable({ delayMs: 10, log: console.log })({ highWaterMark: 256, decodeStrings: false }),
+    producer({ eager: true, log: console.log }),
+    (data, spy) => expect(data).deep.equals(spy.data)
+  )
+})
 ```
 
 ### `transform-test`
