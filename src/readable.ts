@@ -2,16 +2,17 @@
 import { Readable, ReadableOptions } from 'stream'
 import { iterate } from 'iterama'
 import isPositiveNumber from './is-positive-number'
+import noop from './noop'
 
 export type MakeReadableOptions = {
-  log: typeof console.log
+  log?: typeof console.log
   errorAtStep?: number
   errorBehavior?: 'break' | 'continue',
   delayMs?: number
   eager?: boolean
 }
 
-const readable = ({ log, errorAtStep, errorBehavior, eager, delayMs }: MakeReadableOptions) =>
+const readable = ({ log = noop, errorAtStep, errorBehavior, eager = false, delayMs = 0 }: MakeReadableOptions = {}) =>
   (readableOptions: ReadableOptions) =>
     <T> (iterable: Iterable<T>) => {
       let i = 0
@@ -61,7 +62,7 @@ const readable = ({ log, errorAtStep, errorBehavior, eager, delayMs }: MakeReada
         setTimeout(() => {
           log('actual read %d', i)
           syncHandler.call(this)
-        }, delayMs as number)
+        }, delayMs)
       }
       const readable = new Readable({
         ...readableOptions,

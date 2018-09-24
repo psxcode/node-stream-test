@@ -1,13 +1,14 @@
 import { Writable, WritableOptions } from 'stream'
 import isPositiveNumber from './is-positive-number'
+import noop from './noop'
 
 export type MakeWritableOptions = {
-  log: typeof console.log
+  log?: typeof console.log
   delayMs?: number
   errorAtStep?: number
 }
 
-const writable = ({ delayMs, errorAtStep, log }: MakeWritableOptions) =>
+const writable = ({ delayMs = 0, errorAtStep, log = noop }: MakeWritableOptions = {}) =>
   (writableOptions: WritableOptions = {}) =>
     <T> (sink: (data: T) => void) => {
       let i = 0
@@ -26,7 +27,7 @@ const writable = ({ delayMs, errorAtStep, log }: MakeWritableOptions) =>
 
       const asyncHandler = (chunk: T, encoding: string, cb: (err: any) => void) => {
         log('async write')
-        setTimeout(() => syncHandler(chunk, encoding, cb), delayMs as number)
+        setTimeout(() => syncHandler(chunk, encoding, cb), delayMs)
       }
 
       const syncFinal = (cb: () => void) => {
@@ -36,7 +37,7 @@ const writable = ({ delayMs, errorAtStep, log }: MakeWritableOptions) =>
 
       const asyncFinal = (cb: () => void) => {
         log('async final started')
-        setTimeout(() => syncFinal(cb), delayMs as number)
+        setTimeout(() => syncFinal(cb), delayMs)
       }
 
       return new Writable({

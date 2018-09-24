@@ -1,15 +1,16 @@
 /* tslint:disable no-conditional-assignment no-empty */
 import isPositiveNumber from './is-positive-number'
 import ReadableStream = NodeJS.ReadableStream
+import noop from './noop'
 
 export type ReadableConsumerOptions = {
-  log: typeof console.log
+  log?: typeof console.log
   delayMs?: number
   readSize?: number
   eager?: boolean
 }
 
-const readableConsumer = ({ log, delayMs, readSize, eager }: ReadableConsumerOptions) =>
+const readableConsumer = ({ log = noop, delayMs = 0, readSize, eager = false }: ReadableConsumerOptions = {}) =>
   <T> (stream: ReadableStream, sink: (data: T) => void) => {
     let i = 0
     const eagerReader = (i: number) => {
@@ -29,7 +30,7 @@ const readableConsumer = ({ log, delayMs, readSize, eager }: ReadableConsumerOpt
       setTimeout(eager
         ? eagerReader.bind(null, i)
         : lazyReader.bind(null, i),
-        delayMs as number)
+        delayMs)
       ++i
     }
     const syncHandler = () => {

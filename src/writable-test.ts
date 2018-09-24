@@ -1,8 +1,8 @@
+import WritableStream = NodeJS.WritableStream
 import debug from 'debug'
 import { waitTimePromise as wait } from '@psxcode/wait'
 import { makeDataSpy, SpyFn } from './spy'
 import waitForEvents from './wait-for-events'
-import WritableStream = NodeJS.WritableStream
 
 const writableTest = <T> (
   data: Iterable<T>,

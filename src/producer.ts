@@ -1,12 +1,13 @@
 import WritableStream = NodeJS.WritableStream
 import { iterate } from 'iterama'
+import noop from './noop'
 
 export type ProducerOptions = {
-  log: typeof console.log
+  log?: typeof console.log
   eager?: boolean
 }
 
-const producer = ({ eager, log }: ProducerOptions) =>
+const producer = ({ eager = false, log = noop }: ProducerOptions = {}) =>
   <T> (stream: WritableStream, iterable: Iterable<T>) => {
     const it = iterate(iterable)
     let i = 0
