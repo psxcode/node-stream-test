@@ -8,7 +8,7 @@ export type ProducerOptions = {
 }
 
 const producer = ({ eager = false, log = noop }: ProducerOptions = {}) =>
-  <T> (stream: WritableStream, iterable: Iterable<T>) => {
+  (stream: WritableStream, iterable: Iterable<any>) => {
     const it = iterate(iterable)
     let i = 0
     const eagerWriter = () => {
@@ -23,17 +23,19 @@ const producer = ({ eager = false, log = noop }: ProducerOptions = {}) =>
       writeChunk(it.next(), lazyWriter)
       log('lazy writing done at %d', i - 1)
     }
-    const writeChunk = (iteratorResult: IteratorResult<T>, cb?: () => void): boolean => {
+    const writeChunk = (iteratorResult: IteratorResult<any>, cb?: () => void): boolean => {
       if (iteratorResult.done) {
         log('ending %d', i)
         stream.end()
+
         return false
       } else {
         log('writing %d', i)
-        const backpressure = stream.write(iteratorResult.value as any, cb)
+        const backpressure = stream.write(iteratorResult.value, cb)
         if (!backpressure) {
           log('backpressure at %d', i)
         }
+
         return backpressure
       }
     }
@@ -53,6 +55,7 @@ const producer = ({ eager = false, log = noop }: ProducerOptions = {}) =>
       stream.once('finish', unsubscribe)
       /* drain event could already be emitted, try to write once */
       eager ? eagerWriter() : lazyWriter()
+
       return unsubscribe
     }
   }

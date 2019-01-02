@@ -3,7 +3,7 @@ const makeNumbers = (length: number): Iterable<number> => ({
     for (let i = 0; i < length; ++i) {
       yield i
     }
-  }
+  },
 })
 
 export default makeNumbers

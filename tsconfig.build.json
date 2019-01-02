@@ -3,13 +3,10 @@
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "build",
-    "declaration": true
+    "declaration": true,
+    "noEmit": false
   },
   "include": [
     "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/**/*.spec.ts"
   ]
 }

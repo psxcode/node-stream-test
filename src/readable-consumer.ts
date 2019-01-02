@@ -11,26 +11,28 @@ export type ReadableConsumerOptions = {
 }
 
 const readableConsumer = ({ log = noop, delayMs = 0, readSize, eager = false }: ReadableConsumerOptions = {}) =>
-  <T> (stream: ReadableStream, sink: (data: T) => void) => {
+  (stream: ReadableStream, sink: (data: any) => void) => {
     let i = 0
     const eagerReader = (i: number) => {
-      let chunk: T
+      let chunk: any
       log('eager read at %d begin', i)
-      while (chunk = stream.read(readSize) as any) sink(chunk)
+      while (chunk = stream.read(readSize)) sink(chunk)
       log('eager read at %d done', i)
     }
     const lazyReader = (i: number) => {
-      let chunk: T
+      let chunk: any
       log('lazy read at %d begin', i);
-      (chunk = stream.read(readSize) as any) && sink(chunk)
+      (chunk = stream.read(readSize)) && sink(chunk)
       log('lazy read at %d done', i)
     }
     const asyncHandler = () => {
       log('received \'readable\' event at %d', i)
-      setTimeout(eager
-        ? eagerReader.bind(null, i)
-        : lazyReader.bind(null, i),
-        delayMs)
+      setTimeout(
+        eager
+          ? eagerReader.bind(null, i)
+          : lazyReader.bind(null, i),
+        delayMs
+      )
       ++i
     }
     const syncHandler = () => {
@@ -46,12 +48,14 @@ const readableConsumer = ({ log = noop, delayMs = 0, readSize, eager = false }: 
       stream.removeListener('readable', syncHandler)
       stream.removeListener('end', unsubscribe)
     }
+
     return () => {
       log('consumer subscribe')
       stream.on('readable', isPositiveNumber(delayMs)
         ? asyncHandler
         : syncHandler)
       stream.on('end', unsubscribe)
+
       return unsubscribe
     }
   }

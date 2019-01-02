@@ -6,9 +6,9 @@ export type DataConsumerOptions = {
 }
 
 const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
-  <T> (stream: ReadableStream, sink: (data: T) => void) => {
+  (stream: ReadableStream, sink: (data: any) => void) => {
     let i = 0
-    const onDataEvent = (chunk: T) => {
+    const onDataEvent = (chunk: any) => {
       log('received \'data\' event at %d', i)
       sink(chunk)
       ++i
@@ -18,10 +18,12 @@ const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
       stream.removeListener('data', onDataEvent)
       stream.removeListener('end', unsubscribe)
     }
+
     return () => {
       log('consumer subscribe')
       stream.on('data', onDataEvent)
       stream.once('end', unsubscribe)
+
       return unsubscribe
     }
   }
