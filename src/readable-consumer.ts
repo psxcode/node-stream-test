@@ -11,7 +11,7 @@ export type ReadableConsumerOptions = {
 }
 
 const readableConsumer = ({ log = noop, delayMs = 0, readSize, eager = false }: ReadableConsumerOptions = {}) =>
-  (stream: ReadableStream, sink: (data: any) => void) => {
+  (sink: (data: any) => void) => (stream: ReadableStream) => {
     let i = 0
     const eagerReader = (i: number) => {
       let chunk: any

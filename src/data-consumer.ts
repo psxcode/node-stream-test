@@ -6,7 +6,7 @@ export type DataConsumerOptions = {
 }
 
 const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
-  (stream: ReadableStream, sink: (data: any) => void) => {
+  (sink: (data: any) => void) => (stream: ReadableStream) => {
     let i = 0
     const onDataEvent = (chunk: any) => {
       log('received \'data\' event at %d', i)

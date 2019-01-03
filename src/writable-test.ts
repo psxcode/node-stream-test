@@ -1,22 +1,25 @@
 import debug from 'debug'
-import { createSpy } from 'spyfn'
+import { createSpy, getSpyCalls } from 'spyfn'
 import { waitTimePromise as wait } from '@psxcode/wait'
 import waitForEvents from './wait-for-events'
+import { TestRunnerFn, MakeWritable, MakeProducer, ExpectFn } from './types'
 
-const writableTest = (it: (msg: string, fn: () => any) => any, message: string) => <T> (
+const writableTest = (it: TestRunnerFn, message: string) => <T> (
   data: Iterable<T>,
-  makeWritable: (spy: (data: T) => void) => NodeJS.WritableStream,
-  makeProducer: (stream: NodeJS.WritableStream, data: Iterable<T>) => () => void,
-  expectFn?: (data: Iterable<T>, spy: (...args: any[]) => any) => void) =>
-    it(message, async () => {
+  makeWritable: MakeWritable<T>,
+  makeProducer: MakeProducer<T>,
+  expectFn?: ExpectFn<T>) =>
+    it(message, async (testObject) => {
       const spy = createSpy(debug('writable-test:'))
       const stream = makeWritable(spy)
-      const producer = makeProducer(stream, data)
-      await wait(100)
-      producer()
+      const producer = makeProducer(data)
+
+      producer(stream)
+
       await waitForEvents('end', 'error')(stream)
       await wait(20)
-      expectFn && expectFn(data, spy)
+
+      expectFn && expectFn(testObject, data, getSpyCalls(spy))
     })
 
 export default writableTest

@@ -8,7 +8,7 @@ export type ProducerOptions = {
 }
 
 const producer = ({ eager = false, log = noop }: ProducerOptions = {}) =>
-  (stream: WritableStream, iterable: Iterable<any>) => {
+  (iterable: Iterable<any>) => (stream: WritableStream) => {
     const it = iterate(iterable)
     let i = 0
     const eagerWriter = () => {

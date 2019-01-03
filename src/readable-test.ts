@@ -1,22 +1,25 @@
 import debug from 'debug'
 import { waitTimePromise as wait } from '@psxcode/wait'
-import { createSpy } from 'spyfn'
+import { createSpy, getSpyCalls } from 'spyfn'
 import waitForEvents from './wait-for-events'
+import { MakeReadable, ExpectFn, TestRunnerFn, MakeConsumer } from './types'
 
-const readableTest = (it: (msg: string, fn: any) => any, message: string) => <T> (
+const readableTest = (it: TestRunnerFn, message: string) => <T> (
   data: Iterable<T>,
-  makeReadable: (data: Iterable<T>) => NodeJS.ReadableStream,
-  makeConsumer: (stream: NodeJS.ReadableStream, sink: (data: T) => void) => () => void,
-  expectFn?: (data: Iterable<T>, spyfn: (...args: any[]) => any) => void) =>
-    it(message, async () => {
+  makeReadable: MakeReadable<T>,
+  makeConsumer: MakeConsumer<T>,
+  expectFn?: ExpectFn<T>) =>
+    it(message, async (testObject) => {
       const spy = createSpy(debug('readable-test: '))
       const stream = makeReadable(data)
-      const consumer = makeConsumer(stream, spy)
-      await wait(100)
-      consumer()
+      const consumer = makeConsumer(spy)
+
+      consumer(stream)
+
       await waitForEvents('end', 'error')(stream)
       await wait(20)
-      expectFn && expectFn(data, spy)
+
+      expectFn && expectFn(testObject, data, getSpyCalls(spy))
     })
 
 export default readableTest
