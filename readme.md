@@ -1,15 +1,15 @@
 # Node Stream Test
 
-### Install
+## Install
 ```
 npm install node-stream-test
 ```
 
-### Usage
+## Usage
 
 ### `readable`
 creates test `Readable` stream, simulating `sync`/`async` behaviors
-`(options: MakeReadableOptions) => (readableOptions: ReadableOptions) => <T> (iterable: Iterable<T>) => Readable`
+`(options: MakeReadableOptions) => (readableOptions: ReadableOptions) => (iterable: Iterable<any>) => Readable`
 ```ts
 type MakeReadableOptions = {
   log: typeof console.log      // provide debug logger or noop
@@ -45,7 +45,7 @@ testReadable
 
 ### `writable`
 creates test `Writable` stream, simulating `sync`/`async` behaviors
-`(options: MakeWritableOptions) => (writableOptions: WritableOptions) => <T> (sink: (chunk: T) => void) => Writable`
+`(options: MakeWritableOptions) => (writableOptions: WritableOptions) => (sink: (chunk: any) => void) => Writable`
 ```ts
 type MakeWritableOptions = {
   log: typeof console.log,       // provide debug logger or noop
@@ -75,7 +75,7 @@ stream.pipe(
 
 ### `producer`
 writes `chunks` to a stream
-`(options: ProducerOptions) => <T> (iterable: Iterable<T>, stream: WritableStream) => () => () => void`
+`(options: ProducerOptions) => (iterable: Iterable<any>) => (stream: WritableStream) => () => void`
 ```ts
 type ProducerOptions = {
   log: typeof console.log,        // provide debug logger or noop
@@ -104,7 +104,7 @@ const beginProduce = producer({
 
 ### `data-consumer`
 simple `on('data')` consumer with logging
-`(options: DataConsumerOptions) => <T> (stream: ReadableStream, sink: (chunk: T) => void) => () => void`
+`(options: DataConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
 type DataConsumerOptions = {
   log: typeof console.log    // provide debug logger or noop
@@ -119,14 +119,15 @@ declare var stream: ReadableStream
 dataConsumer({ 
   log: console.log           // output debug info to console
 })(
-  stream,                    // stream to consume
   (chunk: string) => {}      // your callback on every `data` event
+)(
+  stream,                    // stream to consume
 )
 ```
 
 ### `readable-consumer`
 simple `on('readable')` consumer with `sync/async` behavior and logging
-`(options: ReadableConsumerOptions) => <T> (stream: ReadableStream, sink: (chunk: T) => void) => () => void`
+`(options: ReadableConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
 type ReadableConsumerOptions = {
   log: typeof console.log,       // provide debug logger or noop
@@ -152,30 +153,32 @@ readableConsumer({
   eager: false,                    // lazy behavior
   readSize: undefined              // read all available data
 })(
-  stream,                          // stream to consume
   (chunk: string) => {}            // your callback on `read` call, after `readable` event
+)(
+  stream,                          // stream to consume
 )
 ```
 
 ### `readable-test`
 simple boilerplate to test `Readable` stream. Should be placed inside `describe()`. Creates `it()` test.
 ```ts
+(it: TestRunnerFn, message: string) =>
 (
   data: Iterable<T>,
   makeReadable: (data: Iterable<T>) => ReadableStream,
-  makeConsumer: (stream: ReadableStream, sink: (data: T) => void) => () => void),
-  expectFn?: (data: Iterable<T>, spy: SpyFn<T>) => void
+  makeConsumer: (sink: (data: T) => void) => (stream: ReadableStream) => void),
+  expectFn?: (data: Iterable<T>, spyCalls: any[][]) => void
 ) => void
 ```
 ```ts
 import { readableTest } from 'node-stream-test'
 
 describe('readable test', () => {
-  readableTest(
+  readableTest(it, 'should work)(
     ['a', 'b', 'c', 'd', 'e'],
     readable({ log: console.log })({ encoding: 'utf8' }),
     dataConsumer({ log: console.log }),
-    (data, spy) => expect(data).deep.equals(spy.data)
+    (data, spyCalls) => expect(data).deep.equals(spyCalls)
   )
 })
 ```
@@ -183,22 +186,23 @@ describe('readable test', () => {
 ### `writable-test`
 simple boilerplate to test `Writable` stream. Should be placed inside `describe()`. Creates `it()` test.
 ```ts
+(it: TestRunnerFn, message: string) =>
 (
   data: Iterable<T>,
   makeWritable: (spy: (data: T) => void) => WritableStream,
-  makeProducer: (stream: WritableStream, data: Iterable<T>) => () => void,
-  expectFn?: (data: Iterable<T>, spy: SpyFn<T>) => void
+  makeProducer: (data: Iterable<T>) => (stream: WritableStream) => void,
+  expectFn?: (data: Iterable<T>, spyCalls: any[][]) => void
 ) => void
 ```
 ```ts
 import { writableTest } from 'node-stream-test
 
 describe('writable test', () => {
-  writableTest(
+  writableTest(it, 'should work')(
     ['a', 'b', 'c', 'd', 'e'],
     writable({ delayMs: 10, log: console.log })({ highWaterMark: 256, decodeStrings: false }),
     producer({ eager: true, log: console.log }),
-    (data, spy) => expect(data).deep.equals(spy.data)
+    (data, spyCalls) => expect(data).deep.equals(spyCalls)
   )
 })
 ```
@@ -206,20 +210,12 @@ describe('writable test', () => {
 ### `transform-test`
 simple boilerplate to test `Transform` streams. Should be placed inside `describe()`. Creates `it()` test
 ```ts
+(it: TestRunnerFn, message: string) =>
 (
   data: Iterable<T>,
   makeReadable: (data: Iterable<T>) => ReadableStream,
   makeWritable: (sink: (data: T) => void) => WritableStream,
   makeTransform: () => ReadableStream | ReadableStream[],
-  expectFn?: (data: Iterable<T>, spy: SpyFn<T>) => void
+  expectFn?: (data: Iterable<T>, spyCalls: any[][]) => void
 ) => void
-```
-
-### `SpyFn`
-```ts
-type SpyFn<T> = {
-  (data?: T): void
-  callCount (): number
-  data (): T[]
-}
 ```
