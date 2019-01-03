@@ -1,4 +1,4 @@
-import EventEmitter = NodeJS.EventEmitter
+import { EventEmitter } from 'events'
 
 const waitForEvents = (...events: string[]) => (ee: EventEmitter) =>
   new Promise((res) => {

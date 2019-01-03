@@ -1,4 +1,3 @@
-import ReadableStream = NodeJS.ReadableStream
 import noop from './noop'
 
 export type DataConsumerOptions = {
@@ -6,7 +5,7 @@ export type DataConsumerOptions = {
 }
 
 const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
-  (sink: (data: any) => void) => (stream: ReadableStream) => {
+  (sink: (data: any) => void) => (stream: NodeJS.ReadableStream) => {
     let i = 0
     const onDataEvent = (chunk: any) => {
       log('received \'data\' event at %d', i)
@@ -19,13 +18,12 @@ const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
       stream.removeListener('end', unsubscribe)
     }
 
-    return () => {
-      log('consumer subscribe')
-      stream.on('data', onDataEvent)
-      stream.once('end', unsubscribe)
+    /* subscribe */
+    log('consumer subscribe')
+    stream.on('data', onDataEvent)
+    stream.once('end', unsubscribe)
 
-      return unsubscribe
-    }
+    return unsubscribe
   }
 
 export default dataConsumer

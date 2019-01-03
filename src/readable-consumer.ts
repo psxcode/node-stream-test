@@ -1,6 +1,5 @@
 /* tslint:disable no-conditional-assignment no-empty */
 import isPositiveNumber from './is-positive-number'
-import ReadableStream = NodeJS.ReadableStream
 import noop from './noop'
 
 export type ReadableConsumerOptions = {
@@ -11,7 +10,7 @@ export type ReadableConsumerOptions = {
 }
 
 const readableConsumer = ({ log = noop, delayMs = 0, readSize, eager = false }: ReadableConsumerOptions = {}) =>
-  (sink: (data: any) => void) => (stream: ReadableStream) => {
+  (sink: (data: any) => void) => (stream: NodeJS.ReadableStream) => {
     let i = 0
     const eagerReader = (i: number) => {
       let chunk: any
@@ -49,15 +48,14 @@ const readableConsumer = ({ log = noop, delayMs = 0, readSize, eager = false }: 
       stream.removeListener('end', unsubscribe)
     }
 
-    return () => {
-      log('consumer subscribe')
-      stream.on('readable', isPositiveNumber(delayMs)
-        ? asyncHandler
-        : syncHandler)
-      stream.on('end', unsubscribe)
+    /* subscribe */
+    log('consumer subscribe')
+    stream.on('readable', isPositiveNumber(delayMs)
+      ? asyncHandler
+      : syncHandler)
+    stream.on('end', unsubscribe)
 
-      return unsubscribe
-    }
+    return unsubscribe
   }
 
 export default readableConsumer

@@ -1,10 +1,13 @@
-import * as debug from 'debug'
+import debug from 'debug'
 import { describe, it } from 'mocha'
+import { expect } from 'chai'
+import { createSpy, getSpyCalls } from 'spyfn'
+import { waitTimePromise as wait } from '@psxcode/wait'
 import readable from '../src/readable'
-import readableTest from '../src/readable-test'
 import makeStrings from '../src/make-strings'
 import dataConsumer from '../src/data-consumer'
 import readableConsumer from '../src/readable-consumer'
+import waitForEvents from '../src/wait-for-events'
 
 const logReadable = debug('readable')
 const logConsumer = debug('consumer')
@@ -47,13 +50,20 @@ describe('[ stream-test / readable ]', function () {
     /**
      * for every single 'push' one 'data' event
      */
-    describe('[ LAZY-SYNC-PRODUCER ]', () => {
-      readableTest(it, 'should work')(
-        makeStrings(8),
-        readable({ log: logReadable })({ encoding: 'utf8' }),
-        dataConsumer({ log: logConsumer }),
-        () => {}
-      )
+    describe.only('[ LAZY-SYNC-PRODUCER ]', () => {
+      it('shoudl work', async () => {
+        const data = makeStrings(8)
+        const spy = createSpy(debug('readable-test: '))
+        const stream = readable({ eager: false, log: logReadable })({ encoding: 'utf8' })(data)
+        const consumer = dataConsumer({ log: logConsumer })(spy)
+
+        consumer(stream)
+
+        await waitForEvents('end', 'error')(stream)
+        await wait(20)
+
+        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+      })
     })
 
     /**
@@ -61,13 +71,20 @@ describe('[ stream-test / readable ]', function () {
      * then begins sending 'data' event
      * number os 'data' equals number of 'push'
      */
-    xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(it, 'should work')(
-        makeStrings(8),
-        readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 }),
-        dataConsumer({ log: logConsumer }),
-        () => {}
-      )
+    describe('[ EAGER-SYNC-PRODUCER ]', () => {
+      it('should work', async () => {
+        const data = makeStrings(8)
+        const spy = createSpy(debug('readable-test: '))
+        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
+        const consumer = dataConsumer({ log: logConsumer })(spy)
+
+        consumer(stream)
+
+        await waitForEvents('end', 'error')(stream)
+        await wait(20)
+
+        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+      })
     })
 
     /**
@@ -75,13 +92,20 @@ describe('[ stream-test / readable ]', function () {
      * highWaterMark is not needed
      */
 
-    xdescribe('[ EAGER-ASYNC-PRODUCER ]', () => {
-      readableTest(it, 'should work')(
-        makeStrings(8),
-        readable({ eager: true, delayMs: 20, log: logReadable })({ encoding: 'utf8' }),
-        dataConsumer({ log: logConsumer }),
-        () => {}
-      )
+    describe('[ EAGER-ASYNC-PRODUCER ]', () => {
+      it('should work', async () => {
+        const data = makeStrings(8)
+        const spy = createSpy(debug('readable-test: '))
+        const stream = readable({ eager: true, delayMs: 20, log: logReadable })({ encoding: 'utf8' })(data)
+        const consumer = dataConsumer({ log: logConsumer })(spy)
+
+        consumer(stream)
+
+        await waitForEvents('end', 'error')(stream)
+        await wait(20)
+
+        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+      })
     })
   })
 
@@ -96,13 +120,20 @@ describe('[ stream-test / readable ]', function () {
    * Bad, not optimal
    */
   describe('[ eager-readable consumer ]', () => {
-    xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(it, 'should work')(
-        makeStrings(8),
-        readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 }),
-        readableConsumer({ eager: true, log: logConsumer }),
-        () => {}
-      )
+    describe('[ EAGER-SYNC-PRODUCER ]', () => {
+      it('should work', async () => {
+        const data = makeStrings(8)
+        const spy = createSpy(debug('readable-test: '))
+        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
+        const consumer = readableConsumer({ eager: true, log: logConsumer })(spy)
+
+        consumer(stream)
+
+        await waitForEvents('end', 'error')(stream)
+        await wait(20)
+
+        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+      })
     })
   })
 
@@ -114,13 +145,20 @@ describe('[ stream-test / readable ]', function () {
    * Bad for 'object-mode', stream never ends
    */
   describe('[ lazy-readable consumer ]', () => {
-    xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(it, 'should work')(
-        makeStrings(8),
-        readable({ eager: true, log: logReadable })({ encoding: 'utf8' }),
-        readableConsumer({ log: logConsumer }),
-        () => {}
-      )
+    describe('[ EAGER-SYNC-PRODUCER ]', () => {
+      it('should work', async () => {
+        const data = makeStrings(8)
+        const spy = createSpy(debug('readable-test: '))
+        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
+        const consumer = readableConsumer({ log: logConsumer })(spy)
+
+        consumer(stream)
+
+        await waitForEvents('end', 'error')(stream)
+        await wait(20)
+
+        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+      })
     })
   })
 
@@ -135,13 +173,20 @@ describe('[ stream-test / readable ]', function () {
    * Bad for 'object-mode', stream never ends
    */
   describe('[ lazy-async-readable consumer ]', () => {
-    xdescribe('[ EAGER-SYNC-PRODUCER ]', () => {
-      readableTest(it, 'should work')(
-        makeStrings(8),
-        readable({ eager: true, log: logReadable })({ encoding: 'utf8' }),
-        readableConsumer({ delayMs: 0, log: logConsumer }),
-        () => {}
-      )
+    describe('[ EAGER-SYNC-PRODUCER ]', () => {
+      it('should work', async () => {
+        const data = makeStrings(8)
+        const spy = createSpy(debug('readable-test: '))
+        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
+        const consumer = readableConsumer({ delayMs: 0, log: logConsumer })(spy)
+
+        consumer(stream)
+
+        await waitForEvents('end', 'error')(stream)
+        await wait(20)
+
+        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+      })
     })
   })
 })

@@ -1,4 +1,3 @@
-import WritableStream = NodeJS.WritableStream
 import { iterate } from 'iterama'
 import noop from './noop'
 
@@ -8,7 +7,7 @@ export type ProducerOptions = {
 }
 
 const producer = ({ eager = false, log = noop }: ProducerOptions = {}) =>
-  (iterable: Iterable<any>) => (stream: WritableStream) => {
+  (iterable: Iterable<any>) => (stream: NodeJS.WritableStream) => {
     const it = iterate(iterable)
     let i = 0
     const eagerWriter = () => {
@@ -49,15 +48,14 @@ const producer = ({ eager = false, log = noop }: ProducerOptions = {}) =>
       stream.removeListener('finish', unsubscribe)
     }
 
-    return () => {
-      log('producer subscribe')
-      stream.on('drain', onDrainEvent)
-      stream.once('finish', unsubscribe)
-      /* drain event could already be emitted, try to write once */
-      eager ? eagerWriter() : lazyWriter()
+    /* subscribe */
+    log('producer subscribe')
+    stream.on('drain', onDrainEvent)
+    stream.once('finish', unsubscribe)
+    /* drain event could already be emitted, try to write once */
+    eager ? eagerWriter() : lazyWriter()
 
-      return unsubscribe
-    }
+    return unsubscribe
   }
 
 export default producer
