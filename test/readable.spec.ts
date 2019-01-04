@@ -62,7 +62,9 @@ describe('[ stream-test / readable ]', function () {
         await waitForEvents('end', 'error')(stream)
         await wait(20)
 
-        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+        expect(getSpyCalls(spy)).deep.eq(
+          Array.from(data).map((v) => [v])
+        )
       })
     })
 
@@ -83,7 +85,9 @@ describe('[ stream-test / readable ]', function () {
         await waitForEvents('end', 'error')(stream)
         await wait(20)
 
-        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+        expect(getSpyCalls(spy)).deep.eq(
+          Array.from(data).map((v) => [v])
+        )
       })
     })
 
@@ -92,7 +96,7 @@ describe('[ stream-test / readable ]', function () {
      * highWaterMark is not needed
      */
 
-    describe.only('[ EAGER-ASYNC-PRODUCER ]', () => {
+    describe('[ EAGER-ASYNC-PRODUCER ]', () => {
       it('should work', async () => {
         const data = makeStrings(8)
         const spy = createSpy(debug('nst-readable-test: '))
@@ -104,7 +108,9 @@ describe('[ stream-test / readable ]', function () {
         await waitForEvents('end', 'error')(stream)
         await wait(20)
 
-        expect(Array.from(data)).deep.eq(getSpyCalls(spy))
+        expect(getSpyCalls(spy)).deep.eq(
+          Array.from(data).map((v) => [v])
+        )
       })
     })
   })
@@ -132,7 +138,9 @@ describe('[ stream-test / readable ]', function () {
         await waitForEvents('end', 'error')(stream)
         await wait(20)
 
-        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+        expect(getSpyCalls(spy)).deep.eq([
+          [Array.from(data).join('')],
+        ])
       })
     })
   })
@@ -157,7 +165,9 @@ describe('[ stream-test / readable ]', function () {
         await waitForEvents('end', 'error')(stream)
         await wait(20)
 
-        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+        expect(getSpyCalls(spy)).deep.eq([
+          [Array.from(data).join('')],
+        ])
       })
     })
   })
@@ -185,7 +195,9 @@ describe('[ stream-test / readable ]', function () {
         await waitForEvents('end', 'error')(stream)
         await wait(20)
 
-        expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+        expect(getSpyCalls(spy)).deep.eq([
+          [Array.from(data).join('')],
+        ])
       })
     })
   })

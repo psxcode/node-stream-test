@@ -25,6 +25,8 @@ describe('[ writable ]', function () {
     await waitForEvents('finish', 'error')(stream)
     await wait(20)
 
-    expect(Array.from(data).map((v) => [v])).deep.eq(getSpyCalls(spy))
+    expect(getSpyCalls(spy)).deep.eq(
+      Array.from(data).map((v) => [v])
+    )
   })
 })
