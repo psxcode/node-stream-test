@@ -48,14 +48,16 @@ const readableConsumer = ({ log = noop, delayMs = 0, readSize, eager = false }: 
       stream.removeListener('end', unsubscribe)
     }
 
-    /* subscribe */
-    log('consumer subscribe')
-    stream.on('readable', isPositiveNumber(delayMs)
-      ? asyncHandler
-      : syncHandler)
-    stream.on('end', unsubscribe)
+    return () => {
+      /* subscribe */
+      log('consumer subscribe')
+      stream.on('readable', isPositiveNumber(delayMs)
+        ? asyncHandler
+        : syncHandler)
+      stream.on('end', unsubscribe)
 
-    return unsubscribe
+      return unsubscribe
+    }
   }
 
 export default readableConsumer

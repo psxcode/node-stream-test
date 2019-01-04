@@ -25,7 +25,7 @@ const writable = ({ delayMs = 0, errorAtStep, log = noop }: MakeWritableOptions 
     }
 
     const asyncHandler = (chunk: any, encoding: string, cb: (err: any) => void) => {
-      log('async write')
+      log('async write started')
       setTimeout(() => syncHandler(chunk, encoding, cb), delayMs)
     }
 
@@ -39,7 +39,7 @@ const writable = ({ delayMs = 0, errorAtStep, log = noop }: MakeWritableOptions 
       setTimeout(() => syncFinal(cb), delayMs)
     }
 
-    return new Writable({
+    const writable = new Writable({
       ...writableOptions,
       write: (isPositiveNumber(delayMs)
         ? asyncHandler
@@ -48,6 +48,16 @@ const writable = ({ delayMs = 0, errorAtStep, log = noop }: MakeWritableOptions 
         ? asyncFinal
         : syncFinal,
     })
+
+    writable.on('removeListener', (name) => {
+      log('removeListener for \'%s\', total: %d', name, writable.listenerCount(name))
+    })
+
+    writable.on('newListener', (name) => {
+      log('newListener for \'%s\', total: %d', name, writable.listenerCount(name) + 1)
+    })
+
+    return writable
   }
 
 export default writable

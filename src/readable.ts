@@ -84,11 +84,11 @@ const readable = ({ log = noop, errorAtStep, errorBehavior, eager = false, delay
     })
 
     readable.on('removeListener', (name) => {
-      log('removeListener for \'%s\': %d', name, readable.listenerCount(name))
+      log('removeListener for \'%s\', total: %d', name, readable.listenerCount(name))
     })
 
     readable.on('newListener', (name) => {
-      log('newListener for \'%s\': %d', name, readable.listenerCount(name) + 1)
+      log('newListener for \'%s\', total: %d', name, readable.listenerCount(name) + 1)
     })
 
     return readable

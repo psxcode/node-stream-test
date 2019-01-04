@@ -36,7 +36,7 @@ const logConsumer = debug('nst-consumer')
  * In EAGER-ASYNC, special guard value should be used
  */
 
-describe('[ stream-test / readable ]', function () {
+describe('[ readable ]', function () {
   this.slow(1000)
 
   /**
@@ -46,73 +46,68 @@ describe('[ stream-test / readable ]', function () {
    * Good for any type of data
    * Best for 'object-mode'
    */
-  describe('[ data consumer ]', () => {
-    /**
+
+  /**
      * for every single 'push' one 'data' event
      */
-    describe('[ LAZY-SYNC-PRODUCER ]', () => {
-      it('shoudl work', async () => {
-        const data = makeStrings(8)
-        const spy = createSpy(debug('nst-readable-test: '))
-        const stream = readable({ eager: false, log: logReadable })({ encoding: 'utf8' })(data)
-        const consumer = dataConsumer({ log: logConsumer })(spy)
+  it('lazy-sync-readable / data-consumer', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: false, log: logReadable })({ encoding: 'utf8' })(data)
+    const consumer = dataConsumer({ log: logConsumer })(spy)(stream)
+    const waiter = waitForEvents('end', 'error')(stream)
 
-        consumer(stream)
+    consumer()
 
-        await waitForEvents('end', 'error')(stream)
-        await wait(20)
+    await waiter
+    await wait(20)
 
-        expect(getSpyCalls(spy)).deep.eq(
-          Array.from(data).map((v) => [v])
-        )
-      })
-    })
+    expect(getSpyCalls(spy)).deep.eq(
+      Array.from(data).map((v) => [v])
+    )
+  })
 
-    /**
+  /**
      * allows several 'push'es up to highWaterMark
      * then begins sending 'data' event
      * number os 'data' equals number of 'push'
      */
-    describe('[ EAGER-SYNC-PRODUCER ]', () => {
-      it('should work', async () => {
-        const data = makeStrings(8)
-        const spy = createSpy(debug('nst-readable-test: '))
-        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
-        const consumer = dataConsumer({ log: logConsumer })(spy)
+  it('eager-sync-readable / data-consumer', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
+    const consumer = dataConsumer({ log: logConsumer })(spy)(stream)
+    const waiter = waitForEvents('end', 'error')(stream)
 
-        consumer(stream)
+    consumer()
 
-        await waitForEvents('end', 'error')(stream)
-        await wait(20)
+    await waiter
+    await wait(20)
 
-        expect(getSpyCalls(spy)).deep.eq(
-          Array.from(data).map((v) => [v])
-        )
-      })
-    })
+    expect(getSpyCalls(spy)).deep.eq(
+      Array.from(data).map((v) => [v])
+    )
+  })
 
-    /**
+  /**
      * for every EAGER 'push' there is synchronous 'data' event
      * highWaterMark is not needed
      */
+  it('eager-async-readable / data-consumer', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, delayMs: 20, log: logReadable })({ encoding: 'utf8' })(data)
+    const consumer = dataConsumer({ log: logConsumer })(spy)(stream)
+    const waiter = waitForEvents('end', 'error')(stream)
 
-    describe('[ EAGER-ASYNC-PRODUCER ]', () => {
-      it('should work', async () => {
-        const data = makeStrings(8)
-        const spy = createSpy(debug('nst-readable-test: '))
-        const stream = readable({ eager: true, delayMs: 20, log: logReadable })({ encoding: 'utf8' })(data)
-        const consumer = dataConsumer({ log: logConsumer })(spy)
+    consumer()
 
-        consumer(stream)
+    await waiter
+    await wait(20)
 
-        await waitForEvents('end', 'error')(stream)
-        await wait(20)
-
-        expect(getSpyCalls(spy)).deep.eq(
-          Array.from(data).map((v) => [v])
-        )
-      })
-    })
+    expect(getSpyCalls(spy)).deep.eq(
+      Array.from(data).map((v) => [v])
+    )
   })
 
   /**
@@ -125,24 +120,21 @@ describe('[ stream-test / readable ]', function () {
    * Then stream 'ends'
    * Bad, not optimal
    */
-  describe('[ eager-readable consumer ]', () => {
-    describe('[ EAGER-SYNC-PRODUCER ]', () => {
-      it('should work', async () => {
-        const data = makeStrings(8)
-        const spy = createSpy(debug('nst-readable-test: '))
-        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
-        const consumer = readableConsumer({ eager: true, log: logConsumer })(spy)
+  it('eager-sync-readable / eager-readable-consumer', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
+    const consumer = readableConsumer({ eager: true, log: logConsumer })(spy)(stream)
+    const waiter = waitForEvents('end', 'error')(stream)
 
-        consumer(stream)
+    consumer()
 
-        await waitForEvents('end', 'error')(stream)
-        await wait(20)
+    await waiter
+    await wait(20)
 
-        expect(getSpyCalls(spy)).deep.eq([
-          [Array.from(data).join('')],
-        ])
-      })
-    })
+    expect(getSpyCalls(spy)).deep.eq([
+      [Array.from(data).join('')],
+    ])
   })
 
   /**
@@ -152,24 +144,21 @@ describe('[ stream-test / readable ]', function () {
    * Good for concatenatable data (strings, buffers)
    * Bad for 'object-mode', stream never ends
    */
-  describe('[ lazy-readable consumer ]', () => {
-    describe('[ EAGER-SYNC-PRODUCER ]', () => {
-      it('should work', async () => {
-        const data = makeStrings(8)
-        const spy = createSpy(debug('nst-readable-test: '))
-        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
-        const consumer = readableConsumer({ log: logConsumer })(spy)
+  it('eager-sync-readable / lazy-readable-consumer', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
+    const consumer = readableConsumer({ log: logConsumer })(spy)(stream)
+    const waiter = waitForEvents('end', 'error')(stream)
 
-        consumer(stream)
+    consumer()
 
-        await waitForEvents('end', 'error')(stream)
-        await wait(20)
+    await waiter
+    await wait(20)
 
-        expect(getSpyCalls(spy)).deep.eq([
-          [Array.from(data).join('')],
-        ])
-      })
-    })
+    expect(getSpyCalls(spy)).deep.eq([
+      [Array.from(data).join('')],
+    ])
   })
 
   /**
@@ -182,23 +171,20 @@ describe('[ stream-test / readable ]', function () {
    * Best for concatenatable data (strings, buffers)
    * Bad for 'object-mode', stream never ends
    */
-  describe('[ lazy-async-readable consumer ]', () => {
-    describe('[ EAGER-SYNC-PRODUCER ]', () => {
-      it('should work', async () => {
-        const data = makeStrings(8)
-        const spy = createSpy(debug('nst-readable-test: '))
-        const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
-        const consumer = readableConsumer({ delayMs: 0, log: logConsumer })(spy)
+  it('eager-sync-readable / lazy-async-readable-consumer', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
+    const consumer = readableConsumer({ delayMs: 0, log: logConsumer })(spy)(stream)
+    const waiter = waitForEvents('end', 'error')(stream)
 
-        consumer(stream)
+    consumer()
 
-        await waitForEvents('end', 'error')(stream)
-        await wait(20)
+    await waiter
+    await wait(20)
 
-        expect(getSpyCalls(spy)).deep.eq([
-          [Array.from(data).join('')],
-        ])
-      })
-    })
+    expect(getSpyCalls(spy)).deep.eq([
+      [Array.from(data).join('')],
+    ])
   })
 })

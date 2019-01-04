@@ -18,12 +18,14 @@ const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
       stream.removeListener('end', unsubscribe)
     }
 
-    /* subscribe */
-    log('consumer subscribe')
-    stream.on('data', onDataEvent)
-    stream.once('end', unsubscribe)
+    return () => {
+      /* subscribe */
+      log('consumer subscribe')
+      stream.on('data', onDataEvent)
+      stream.on('end', unsubscribe)
 
-    return unsubscribe
+      return unsubscribe
+    }
   }
 
 export default dataConsumer
