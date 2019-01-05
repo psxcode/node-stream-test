@@ -67,6 +67,23 @@ describe('[ readable ]', function () {
     )
   })
 
+  it('lazy-async-readable / data-consumer', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: false, delayMs: 10, log: logReadable })({ encoding: 'utf8' })(data)
+    const consumer = dataConsumer({ log: logConsumer })(spy)(stream)
+    const waiter = waitForEvents('end', 'error')(stream)
+
+    consumer()
+
+    await waiter
+    await wait(20)
+
+    expect(getSpyCalls(spy)).deep.eq(
+      Array.from(data).map((v) => [v])
+    )
+  })
+
   /**
      * allows several 'push'es up to highWaterMark
      * then begins sending 'data' event
@@ -75,7 +92,7 @@ describe('[ readable ]', function () {
   it('eager-sync-readable / data-consumer', async () => {
     const data = makeStrings(8)
     const spy = createSpy(debug('nst-sink: '))
-    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
+    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 32 })(data)
     const consumer = dataConsumer({ log: logConsumer })(spy)(stream)
     const waiter = waitForEvents('end', 'error')(stream)
 

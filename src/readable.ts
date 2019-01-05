@@ -40,9 +40,11 @@ const readable = ({ log = noop, errorAtStep, errorBehavior, eager = false, delay
 
       log('push %d', i)
 
-      const res = this.push(iteratorResult.value === null
-        ? undefined
-        : iteratorResult.value)
+      const res = this.push(
+        iteratorResult.value === null
+          ? undefined
+          : iteratorResult.value
+      )
 
       if (!res) {
         log('backpressure at %d', i)
@@ -55,23 +57,21 @@ const readable = ({ log = noop, errorAtStep, errorBehavior, eager = false, delay
       if (inProgress) return
 
       if (eager) {
-        log('eager read requested %d', i)
         inProgress = true
         log('eager read begin at %d', i)
         while (push.call(this, iterator.next(), i++)) {}
         log('eager read end at %d', i - 1)
         inProgress = false
       } else {
-        log('lazy read requested %d', i)
+        log('lazy read %d', i)
         push.call(this, iterator.next(), i++)
       }
     }
 
     const asyncHandler = function (this: Readable) {
       if (inProgress) return
-      log('async read')
+      log('async read started')
       setTimeout(() => {
-        log('actual read %d', i)
         syncHandler.call(this)
       }, delayMs)
     }
