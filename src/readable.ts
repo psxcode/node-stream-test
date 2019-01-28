@@ -1,84 +1,75 @@
 /* tslint:disable no-conditional-assignment no-empty */
 import { Readable, ReadableOptions } from 'stream'
 import { iterate } from 'iterama'
-import isPositiveNumber from './is-positive-number'
 import noop from './noop'
+import isPositive from './is-positive-number'
 
 export type MakeReadableOptions = {
   log?: typeof console.log
   errorAtStep?: number
-  errorBehavior?: 'break' | 'continue',
   delayMs?: number
-  eager?: boolean
+  eager: boolean
 }
 
-const readable = ({ log = noop, errorAtStep, errorBehavior, eager = false, delayMs = 0 }: MakeReadableOptions = {}) =>
+const readable = ({ log = noop, errorAtStep, eager, delayMs }: MakeReadableOptions) =>
   (readableOptions: ReadableOptions) => (iterable: Iterable<any>) => {
+    const it = iterate(iterable)
     let i = 0
-    let inProgress = false
 
-    const iterator = iterate(iterable)
-
-    const push = function (this: Readable, iteratorResult: IteratorResult<any>, i: number) {
-      if (isPositiveNumber(errorAtStep) && i === errorAtStep) {
+    const push = function (this: Readable): boolean {
+      if (i === errorAtStep) {
         log('emitting error at %d', i)
-        this.emit('error', new Error(`emitting error at ${i}`))
+        this.emit('error', new Error(`error at ${i}`))
+        this.push(null)
 
-        if (errorBehavior === 'break') {
-          this.push(null)
-
-          return null
-        }
+        return false
       }
+
+      const iteratorResult = it.next()
 
       if (iteratorResult.done) {
         log('complete at %d', i)
         this.push(null)
 
-        return null
+        return false
       }
 
       log('push %d', i)
 
-      const res = this.push(
+      const isOk = this.push(
         iteratorResult.value === null
           ? undefined
           : iteratorResult.value
       )
 
-      if (!res) {
+      if (!isOk) {
         log('backpressure at %d', i)
       }
 
-      return res
+      ++i
+
+      return isOk
     }
 
     const syncHandler = function (this: Readable) {
-      if (inProgress) return
-
       if (eager) {
-        inProgress = true
         log('eager read begin at %d', i)
-        while (push.call(this, iterator.next(), i++)) {}
-        log('eager read end at %d', i - 1)
-        inProgress = false
+        while (push.call(this)) {}
+        log('eager read end at %d', i)
       } else {
         log('lazy read %d', i)
-        push.call(this, iterator.next(), i++)
+        push.call(this)
       }
     }
 
     const asyncHandler = function (this: Readable) {
-      if (inProgress) return
       log('async read started')
-      setTimeout(() => {
-        syncHandler.call(this)
-      }, delayMs)
+      setTimeout(syncHandler.bind(this), delayMs!)
     }
 
     const readable = new Readable({
       ...readableOptions,
-      read: isPositiveNumber(delayMs)
+      read: isPositive(delayMs)
         ? asyncHandler
         : syncHandler,
     })

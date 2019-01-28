@@ -1,10 +1,11 @@
 import noop from './noop'
 
-export type DataConsumerOptions = {
-  log?: typeof console.log
+export type PushConsumerOptions = {
+  log?: typeof console.log,
+  continueOnError?: boolean,
 }
 
-const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
+const pushConsumer = ({ log = noop, continueOnError }: PushConsumerOptions = {}) =>
   (sink: (data: any) => void) => (stream: NodeJS.ReadableStream) => {
     let i = 0
     const onDataEvent = (chunk: any) => {
@@ -12,10 +13,17 @@ const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
       sink(chunk)
       ++i
     }
+    const onErrorEvent = (err?: Error) => {
+      log('received \'error\' event at %d', i)
+      if (!continueOnError) {
+        unsubscribe()
+      }
+    }
     const unsubscribe = () => {
       log('unsubscribe at %d', i)
       stream.removeListener('data', onDataEvent)
       stream.removeListener('end', unsubscribe)
+      stream.removeListener('error', onErrorEvent)
     }
 
     return () => {
@@ -23,9 +31,10 @@ const dataConsumer = ({ log = noop }: DataConsumerOptions = {}) =>
       log('consumer subscribe')
       stream.on('data', onDataEvent)
       stream.on('end', unsubscribe)
+      stream.on('error', onErrorEvent)
 
       return unsubscribe
     }
   }
 
-export default dataConsumer
+export default pushConsumer

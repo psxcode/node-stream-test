@@ -1,5 +1,3 @@
-const isPositiveNumber = (num: any): num is number => {
-  return num && isFinite(num) && num > 0
-}
+const isPositiveNumber = (num?: number) => num !== undefined && isFinite(num) && num > 0
 
 export default isPositiveNumber
