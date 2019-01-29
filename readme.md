@@ -12,9 +12,10 @@ creates test `Readable` stream, simulating `sync`/`async` behaviors
 `(options: MakeReadableOptions) => (readableOptions: ReadableOptions) => (iterable: Iterable<any>) => Readable`
 ```ts
 type MakeReadableOptions = {
-  log: typeof console.log      // provide debug logger or noop
+  eager: boolean               // lazy or eager stream behavior
+  log?: typeof console.log     // provide debug logger or noop
   delayMs?: number             // simulate async stream behavior
-  eager?: boolean              // lazy or eager stream behavior
+  errorAtStep?: number         // emit 'error' event at certain step
 }
 ```
 > Lazy stream pushes one `chunk` of data on every `read`.  
@@ -50,6 +51,7 @@ creates test `Writable` stream, simulating `sync`/`async` behaviors
 type MakeWritableOptions = {
   log: typeof console.log,       // provide debug logger or noop
   delayMs?: number               // simulate async
+  errorAtStep?: number           // emit 'error' event at certain step
 }
 ```
 > `delayMs` is a delay between `write` call and passing `chunk` to a sink.  
