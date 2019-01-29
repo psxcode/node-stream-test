@@ -71,8 +71,10 @@ const testWritable = writable({
 
 // pipe the stream into test-writable
 stream.pipe(
-  
-)
+  stream,
+  testWritable
+).on('data', () => {})
+  .on('end', () => {})
 ```
 
 ### `producer`
@@ -108,17 +110,17 @@ const beginProduce = producer({
 simple `on('data')` consumer with logging
 `(options: DataConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
-type DataConsumerOptions = {
+type PushConsumerOptions = {
   log: typeof console.log    // provide debug logger or noop
 }
 ```
 ```ts
-import { dataConsumer } from 'node-stream-test'
+import { pushConsumer } from 'node-stream-test'
 
 // We have the following stream
 declare var stream: ReadableStream
 
-dataConsumer({ 
+pushConsumer({ 
   log: console.log           // output debug info to console
 })(
   (chunk: string) => {}      // your callback on every `data` event
@@ -131,7 +133,7 @@ dataConsumer({
 simple `on('readable')` consumer with `sync/async` behavior and logging
 `(options: ReadableConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
-type ReadableConsumerOptions = {
+type PullConsumerOptions = {
   log: typeof console.log,       // provide debug logger or noop
   delayMs?: number,              // simulate async
   eager?: boolean,               // eager or lazy behavior
@@ -144,12 +146,12 @@ type ReadableConsumerOptions = {
 Then waits for the next `readable`.  
 `lazy` consumer reads one `chunk`, then waits.
 ```ts
-import { readableConsumer } from 'node-stream-test'
+import { pullConsumer } from 'node-stream-test'
 
 // We have the following stream
 declare var stream: ReadableStream
 
-readableConsumer({
+pullConsumer({
   log: console.log,                // print debug info to console
   delayMs: 10,                     // delay 10ms
   eager: false,                    // lazy behavior
