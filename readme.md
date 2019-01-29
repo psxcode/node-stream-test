@@ -102,7 +102,7 @@ const beginProduce = producer({
 )
 ```
 
-### `data-consumer`
+### `push-consumer`
 simple `on('data')` consumer with logging
 `(options: DataConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
@@ -125,7 +125,7 @@ dataConsumer({
 )
 ```
 
-### `readable-consumer`
+### `pull-consumer`
 simple `on('readable')` consumer with `sync/async` behavior and logging
 `(options: ReadableConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
@@ -157,65 +157,4 @@ readableConsumer({
 )(
   stream,                          // stream to consume
 )
-```
-
-### `readable-test`
-simple boilerplate to test `Readable` stream. Should be placed inside `describe()`. Creates `it()` test.
-```ts
-(it: TestRunnerFn, message: string) =>
-(
-  data: Iterable<T>,
-  makeReadable: (data: Iterable<T>) => ReadableStream,
-  makeConsumer: (sink: (data: T) => void) => (stream: ReadableStream) => void),
-  expectFn?: (data: Iterable<T>, spyCalls: any[][]) => void
-) => void
-```
-```ts
-import { readableTest } from 'node-stream-test'
-
-describe('readable test', () => {
-  readableTest(it, 'should work)(
-    ['a', 'b', 'c', 'd', 'e'],
-    readable({ log: console.log })({ encoding: 'utf8' }),
-    dataConsumer({ log: console.log }),
-    (data, spyCalls) => expect(data).deep.equals(spyCalls)
-  )
-})
-```
-
-### `writable-test`
-simple boilerplate to test `Writable` stream. Should be placed inside `describe()`. Creates `it()` test.
-```ts
-(it: TestRunnerFn, message: string) =>
-(
-  data: Iterable<T>,
-  makeWritable: (spy: (data: T) => void) => WritableStream,
-  makeProducer: (data: Iterable<T>) => (stream: WritableStream) => void,
-  expectFn?: (data: Iterable<T>, spyCalls: any[][]) => void
-) => void
-```
-```ts
-import { writableTest } from 'node-stream-test
-
-describe('writable test', () => {
-  writableTest(it, 'should work')(
-    ['a', 'b', 'c', 'd', 'e'],
-    writable({ delayMs: 10, log: console.log })({ highWaterMark: 256, decodeStrings: false }),
-    producer({ eager: true, log: console.log }),
-    (data, spyCalls) => expect(data).deep.equals(spyCalls)
-  )
-})
-```
-
-### `transform-test`
-simple boilerplate to test `Transform` streams. Should be placed inside `describe()`. Creates `it()` test
-```ts
-(it: TestRunnerFn, message: string) =>
-(
-  data: Iterable<T>,
-  makeReadable: (data: Iterable<T>) => ReadableStream,
-  makeWritable: (sink: (data: T) => void) => WritableStream,
-  makeTransform: () => ReadableStream | ReadableStream[],
-  expectFn?: (data: Iterable<T>, spyCalls: any[][]) => void
-) => void
 ```

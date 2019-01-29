@@ -2,11 +2,11 @@ import { describe, it } from 'mocha'
 import { expect } from 'chai'
 import debug from 'debug'
 import { createSpy, getSpyCalls } from 'spyfn'
-import makeStrings from '../src/make-strings'
 import producer from '../src/producer'
 import writable from '../src/writable'
-import numEvents from '../src/num-events'
-import finished from '../src/stream-finished'
+import makeStrings from './make-strings'
+import numEvents from './num-events'
+import finished from './stream-finished'
 
 describe('[ producer / writable ]', () => {
   it('[ eager producer / sync writable ]', async () => {

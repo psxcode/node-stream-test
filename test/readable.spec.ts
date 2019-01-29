@@ -3,11 +3,11 @@ import { describe, it } from 'mocha'
 import { expect } from 'chai'
 import { createSpy, getSpyCalls } from 'spyfn'
 import readable from '../src/readable'
-import makeStrings from '../src/make-strings'
 import pushConsumer from '../src/push-consumer'
 import pullConsumer from '../src/pull-consumer'
-import numEvents from '../src/num-events'
-import finished from '../src/stream-finished'
+import finished from './stream-finished'
+import numEvents from './num-events'
+import makeStrings from './make-strings'
 
 const logReadable = debug('nst-readable')
 const logConsumer = debug('nst-consumer')
