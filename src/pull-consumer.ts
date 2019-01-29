@@ -67,7 +67,7 @@ const pullConsumer = ({ log = noop, delayMs, readSizeLimit, eager, continueOnErr
       stream.removeListener('end', unsubscribe)
       stream.removeListener('error', onErrorEvent)
       /* drain the stream */
-      stream.resume()
+      setImmediate(stream.resume.bind(stream))
     }
 
     return () => {

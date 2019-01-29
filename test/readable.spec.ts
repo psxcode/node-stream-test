@@ -36,7 +36,7 @@ const logConsumer = debug('nst-consumer')
  * In EAGER-ASYNC, special guard value should be used
  */
 
-describe('[ readable / consumer ]', () => {
+describe('[ readable / push-consumer ]', () => {
   /**
    * PUSH CONSUMER
    * for every 'this.push()', there will be 'data' event, giving corresponding chunk
@@ -121,6 +121,68 @@ describe('[ readable / consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
+  it('[ \'null\' value is being converted to undefined ]', async () => {
+    const data = [null, null]
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable })({ objectMode: true })(data)
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(getSpyCalls(spy)).deep.eq([
+      [undefined],
+      [undefined],
+    ])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ push-consumer - error break ]', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(getSpyCalls(spy)).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ push-consumer - error continue ]', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pushConsumer({ log: logConsumer, continueOnError: true })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(getSpyCalls(spy)).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ push-consumer - unsubscribe ]', async () => {
+    const data = makeStrings(8)
+    const spy = createSpy(debug('nst-sink: '))
+    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    const unsub = subscribeConsumer()
+    unsub()
+
+    await finished(stream)
+
+    expect(getSpyCalls(spy)).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+})
+
+describe('[ readable / pull-consumer ]', () => {
   /**
    * EAGER PULL CONSUMER
    * On 'readable' event starts 'stream.read()' until there is no data left
@@ -215,52 +277,7 @@ describe('[ readable / consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ \'null\' value is being converted to undefined ]', async () => {
-    const data = [null, null]
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = readable({ eager: true, log: logReadable })({ objectMode: true })(data)
-    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
-
-    subscribeConsumer()
-
-    await finished(stream)
-
-    expect(getSpyCalls(spy)).deep.eq([
-      [undefined],
-      [undefined],
-    ])
-    expect(numEvents(stream)).eq(0)
-  })
-
-  it('[ push-consumer - readable error break ]', async () => {
-    const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
-    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
-
-    subscribeConsumer()
-
-    await finished(stream)
-
-    expect(getSpyCalls(spy)).deep.eq([])
-    expect(numEvents(stream)).eq(0)
-  })
-
-  it('[ push-consumer - readable error continue ]', async () => {
-    const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
-    const subscribeConsumer = pushConsumer({ log: logConsumer, continueOnError: true })(spy)(stream)
-
-    subscribeConsumer()
-
-    await finished(stream)
-
-    expect(getSpyCalls(spy)).deep.eq([])
-    expect(numEvents(stream)).eq(0)
-  })
-
-  it('[ pull-consumer - readable error break ]', async () => {
+  it('[ pull-consumer - error break ]', async () => {
     const data = makeStrings(8)
     const spy = createSpy(debug('nst-sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
@@ -274,14 +291,13 @@ describe('[ readable / consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ push-consumer - unsubscribe ]', async () => {
+  it('[ pull-consumer - error continue ]', async () => {
     const data = makeStrings(8)
     const spy = createSpy(debug('nst-sink: '))
-    const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
-    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer, continueOnError: true })(spy)(stream)
 
-    const unsub = subscribeConsumer()
-    unsub()
+    subscribeConsumer()
 
     await finished(stream)
 

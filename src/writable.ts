@@ -9,7 +9,7 @@ export type MakeWritableOptions = {
 }
 
 const writable = ({ delayMs, errorAtStep, log = noop }: MakeWritableOptions = {}) =>
-  (writableOptions: WritableOptions = {}) => (sink: (data: any) => void) => {
+  (writableOptions: WritableOptions) => (sink: (data: any) => void) => {
     let i = 0
 
     const syncHandler = (chunk: any, _: string, cb: (err?: Error) => void) => {
