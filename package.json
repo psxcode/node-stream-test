@@ -8,7 +8,7 @@
   "author": "psxcode <psxcode@gmail.com> (https://github.com/psxcode)",
   "homepage": "https://github.com/psxcode/node-stream-test",
   "scripts": {
-    "test": "NODE_ENV=test nyc mocha 'test/*.ts'",
+    "test": "NODE_ENV=test nyc mocha 'test/*.spec.ts'",
     "build": "rimraf build && tsc -p tsconfig.build.json",
     "copy": "cp ./{package.json,readme.md,LICENSE} ./build"
   },
