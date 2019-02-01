@@ -3,14 +3,15 @@ import { describe, it } from 'mocha'
 import { expect } from 'chai'
 import { createSpy, getSpyCalls } from 'spyfn'
 import readable from '../src/readable'
+import writable from '../src/writable'
 import pushConsumer from '../src/push-consumer'
 import pullConsumer from '../src/pull-consumer'
 import finished from './stream-finished'
 import numEvents from './num-events'
 import makeStrings from './make-strings'
 
-const logReadable = debug('nst-readable')
-const logConsumer = debug('nst-consumer')
+const logReadable = debug('nst:readable')
+const logConsumer = debug('nst:consumer')
 
 /**
  * LAZY PRODUCER
@@ -50,7 +51,7 @@ describe('[ readable / push-consumer ]', () => {
    */
   it('[ lazy-sync-readable / push-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: false, log: logReadable })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
@@ -66,7 +67,7 @@ describe('[ readable / push-consumer ]', () => {
 
   it('[ lazy-async-readable / push-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: false, delayMs: 10, log: logReadable })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
@@ -87,7 +88,7 @@ describe('[ readable / push-consumer ]', () => {
      */
   it('[ eager-sync-readable / push-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 32 })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
@@ -107,7 +108,7 @@ describe('[ readable / push-consumer ]', () => {
      */
   it('[ eager-async-readable / push-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, delayMs: 20, log: logReadable })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
@@ -123,7 +124,7 @@ describe('[ readable / push-consumer ]', () => {
 
   it('[ \'null\' value is being converted to undefined ]', async () => {
     const data = [null, null]
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ objectMode: true })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
@@ -140,7 +141,7 @@ describe('[ readable / push-consumer ]', () => {
 
   it('[ push-consumer - error break ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
@@ -154,7 +155,7 @@ describe('[ readable / push-consumer ]', () => {
 
   it('[ push-consumer - error continue ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer, continueOnError: true })(spy)(stream)
 
@@ -168,7 +169,7 @@ describe('[ readable / push-consumer ]', () => {
 
   it('[ push-consumer - unsubscribe ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
@@ -195,7 +196,7 @@ describe('[ readable / pull-consumer ]', () => {
    */
   it('[ eager-sync-readable / eager-sync-pull-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
     const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer })(spy)(stream)
 
@@ -214,7 +215,7 @@ describe('[ readable / pull-consumer ]', () => {
    */
   it('[ eager-sync-readable / eager-async-pull-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8', highWaterMark: 64 })(data)
     const subscribeConsumer = pullConsumer({ eager: true, delayMs: 10, log: logConsumer })(spy)(stream)
 
@@ -237,7 +238,7 @@ describe('[ readable / pull-consumer ]', () => {
    */
   it('[ eager-sync-readable / lazy-sync-pull-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pullConsumer({ eager: false, log: logConsumer })(spy)(stream)
 
@@ -263,7 +264,7 @@ describe('[ readable / pull-consumer ]', () => {
    */
   it('[ eager-sync-readable / lazy-async-pull-consumer ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pullConsumer({ eager: false, delayMs: 10, log: logConsumer })(spy)(stream)
 
@@ -279,7 +280,7 @@ describe('[ readable / pull-consumer ]', () => {
 
   it('[ pull-consumer - error break ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer })(spy)(stream)
 
@@ -293,7 +294,7 @@ describe('[ readable / pull-consumer ]', () => {
 
   it('[ pull-consumer - error continue ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer, continueOnError: true })(spy)(stream)
 
@@ -307,7 +308,7 @@ describe('[ readable / pull-consumer ]', () => {
 
   it('[ pull-consumer - unsubscribe ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
+    const spy = createSpy(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer })(spy)(stream)
 

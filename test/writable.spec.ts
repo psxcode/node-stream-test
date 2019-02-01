@@ -11,9 +11,9 @@ import finished from './stream-finished'
 describe('[ producer / writable ]', () => {
   it('[ eager producer / sync writable ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ log: debug('nst-writable') })({ decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: true, log: debug('nst-producer') })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ log: debug('nst:writable') })({ decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: true, log: debug('nst:producer') })(data)(stream)
 
     beginProducing()
 
@@ -27,9 +27,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ lazy producer / sync writable ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ log: debug('nst-writable') })({ decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: false, log: debug('nst-producer') })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ log: debug('nst:writable') })({ decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: false, log: debug('nst:producer') })(data)(stream)
 
     beginProducing()
 
@@ -43,9 +43,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ eager producer / async writable ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ delayMs: 10, log: debug('nst-writable') })({ highWaterMark: 16, decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: true, log: debug('nst-producer') })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ delayMs: 10, log: debug('nst:writable') })({ highWaterMark: 16, decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: true, log: debug('nst:producer') })(data)(stream)
 
     beginProducing()
 
@@ -59,9 +59,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ lazy producer / async writable ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ delayMs: 10, log: debug('nst-writable') })({ highWaterMark: 16, decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: false, log: debug('nst-producer') })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ delayMs: 10, log: debug('nst:writable') })({ highWaterMark: 16, decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: false, log: debug('nst:producer') })(data)(stream)
 
     beginProducing()
 
@@ -75,9 +75,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ eager producer - unsubscribe ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ log: debug('nst-writable') })({ decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: true, log: debug('nst-producer') })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ log: debug('nst:writable') })({ decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: true, log: debug('nst:producer') })(data)(stream)
 
     const unsub = beginProducing()
     unsub()
@@ -90,9 +90,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ eager producer - break on error ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ log: debug('nst-writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: true, log: debug('nst-producer') })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ log: debug('nst:writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: true, log: debug('nst:producer') })(data)(stream)
 
     beginProducing()
 
@@ -106,9 +106,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ eager producer - continue on error ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ log: debug('nst-writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: true, log: debug('nst-producer'), continueOnError: true })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ log: debug('nst:writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: true, log: debug('nst:producer'), continueOnError: true })(data)(stream)
 
     beginProducing()
 
@@ -122,9 +122,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ lazy producer - break on error ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ log: debug('nst-writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: false, log: debug('nst-producer') })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ log: debug('nst:writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: false, log: debug('nst:producer') })(data)(stream)
 
     beginProducing()
 
@@ -138,9 +138,9 @@ describe('[ producer / writable ]', () => {
 
   it('[ lazy producer - continue on error ]', async () => {
     const data = makeStrings(8)
-    const spy = createSpy(debug('nst-sink: '))
-    const stream = writable({ log: debug('nst-writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
-    const beginProducing = producer({ eager: false, log: debug('nst-producer'), continueOnError: true })(data)(stream)
+    const spy = createSpy(debug('nst:sink: '))
+    const stream = writable({ log: debug('nst:writable'), errorAtStep: 0 })({ decodeStrings: false })(spy)
+    const beginProducing = producer({ eager: false, log: debug('nst:producer'), continueOnError: true })(data)(stream)
 
     beginProducing()
 
