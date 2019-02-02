@@ -2394,11 +2394,6 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-spyfn@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/spyfn/-/spyfn-0.1.1.tgz#b227fbc19e8791101cfce54e846bbaf4aef2928a"
-  integrity sha512-uWUz0KayEn7WRE7WZ8Cy8Pbr8T9lKr8bcbGyA+vusPS6f1ybGFflKcKXhizSZXTTBJTgiYfFPhAEdFMk+nAI6g==
-
 string-width@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-1.0.2.tgz#118bdf5b8cdc51a2a7e70d211e07e2b0b9b107d3"
@@ -2484,6 +2479,11 @@ test-exclude@^5.0.0:
     minimatch "^3.0.4"
     read-pkg-up "^4.0.0"
     require-main-filename "^1.0.1"
+
+test-fn@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/test-fn/-/test-fn-0.1.0.tgz#209ae7ea145c7214f0a934c32ef2ee6977fe8a87"
+  integrity sha512-c2XPD5qd51kGUNxidr7zSm6lCkCEfcKjkXtVmj8vqvxLGWwDdzUjEbiRLNpxcZXPYbYnDJdrc1Ko1Zow7BSPKQ==
 
 text-table@^0.2.0:
   version "0.2.0"
