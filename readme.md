@@ -16,6 +16,7 @@ type MakeReadableOptions = {
   log?: typeof console.log     // provide debug logger or noop
   delayMs?: number             // simulate async stream behavior
   errorAtStep?: number         // emit 'error' event at certain step
+  continueOnError?: boolean    // whether should stream continue on error or break
 }
 ```
 > Lazy stream pushes one `chunk` of data on every `read`.  
