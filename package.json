@@ -1,6 +1,6 @@
 {
   "name": "node-stream-test",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "main": "index.js",
   "module": "index",
   "typings": "index.d.ts",
