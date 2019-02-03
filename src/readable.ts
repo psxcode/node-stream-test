@@ -5,13 +5,14 @@ import noop from './noop'
 import isPositive from './is-positive-number'
 
 export type MakeReadableOptions = {
-  log?: typeof console.log
-  errorAtStep?: number
-  delayMs?: number
-  eager: boolean
+  log?: typeof console.log,
+  errorAtStep?: number,
+  continueOnError?: boolean
+  delayMs?: number,
+  eager: boolean,
 }
 
-const readable = ({ log = noop, errorAtStep, eager, delayMs }: MakeReadableOptions) =>
+const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, delayMs }: MakeReadableOptions) =>
   (readableOptions: ReadableOptions) => (iterable: Iterable<any>) => {
     const it = iterate(iterable)
     let i = 0
@@ -20,9 +21,13 @@ const readable = ({ log = noop, errorAtStep, eager, delayMs }: MakeReadableOptio
       if (i === errorAtStep) {
         log('emitting error at %d', i)
         this.emit('error', new Error(`error at ${i}`))
-        this.push(null)
 
-        return false
+        if (!continueOnError) {
+          log('break on error at %d', i)
+          this.push(null)
+
+          return false
+        }
       }
 
       const iteratorResult = it.next()

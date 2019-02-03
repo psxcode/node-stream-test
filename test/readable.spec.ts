@@ -139,7 +139,7 @@ describe('[ readable / push-consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ push-consumer - error break ]', async () => {
+  it('[ eager-sync-readable - error break / push-consumer - error break ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
@@ -153,7 +153,21 @@ describe('[ readable / push-consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ push-consumer - error continue ]', async () => {
+  it('[ eager-sync-readable - error continue / push-consumer - error break ]', async () => {
+    const data = makeStrings(8)
+    const spy = fn(debug('nst:sink: '))
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0, continueOnError: true })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-sync-readable - error break / push-consumer - error continue ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
@@ -164,6 +178,22 @@ describe('[ readable / push-consumer ]', () => {
     await finished(stream)
 
     expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-sync-readable - error continue / push-consumer - error continue ]', async () => {
+    const data = makeStrings(8)
+    const spy = fn(debug('nst:sink: '))
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0, continueOnError: true })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pushConsumer({ log: logConsumer, continueOnError: true })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq(
+      Array.from(data).map((v) => [v])
+    )
     expect(numEvents(stream)).eq(0)
   })
 
@@ -278,7 +308,7 @@ describe('[ readable / pull-consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ pull-consumer - error break ]', async () => {
+  it('[ eager-sync-readable - error break / pull-consumer - error break ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
@@ -292,7 +322,21 @@ describe('[ readable / pull-consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ pull-consumer - error continue ]', async () => {
+  it('[ eager-sync-readable - error continue / pull-consumer - error break ]', async () => {
+    const data = makeStrings(8)
+    const spy = fn(debug('nst:sink: '))
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0, continueOnError: true })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-sync-readable - error break / pull-consumer - error continue ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
@@ -306,7 +350,23 @@ describe('[ readable / pull-consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ pull-consumer - unsubscribe ]', async () => {
+  it('[ eager-sync-readable - error continue / pull-consumer - error continue ]', async () => {
+    const data = makeStrings(8)
+    const spy = fn(debug('nst:sink: '))
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0, continueOnError: true })({ encoding: 'utf8' })(data)
+    const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer, continueOnError: true })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([
+      [Array.from(data).join('')],
+    ])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-sync-readable / pull-consumer - unsubscribe ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
