@@ -87,6 +87,14 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
 
     readable.on('removeListener', (name) => {
       log('removeListener for \'%s\', total: %d', name, readable.listenerCount(name))
+
+      if (name === 'data' || name === 'readable') {
+        if (readable.listenerCount('data') === 0 && readable.listenerCount('readable') === 0) {
+          log('no more listeners for data - draining data')
+          unsubscribe && unsubscribe()
+          readable.resume()
+        }
+      }
     })
 
     readable.on('newListener', (name) => {

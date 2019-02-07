@@ -1,14 +1,14 @@
-import { EventEmitter } from 'events'
-
-const numEvents = (ee: EventEmitter) => {
+const numEvents = (...ees: NodeJS.EventEmitter[]) => {
   let num = 0
 
-  num += ee.listenerCount('data')
-  num += ee.listenerCount('readable')
-  num += ee.listenerCount('error')
-  num += ee.listenerCount('end')
-  num += ee.listenerCount('finish')
-  num += ee.listenerCount('close')
+  for (const ee of ees) {
+    num += ee.listenerCount('data')
+    num += ee.listenerCount('readable')
+    num += ee.listenerCount('error')
+    num += ee.listenerCount('end')
+    num += ee.listenerCount('finish')
+    num += ee.listenerCount('close')
+  }
 
   return num
 }
