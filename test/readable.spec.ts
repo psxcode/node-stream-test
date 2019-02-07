@@ -245,6 +245,62 @@ describe('[ readable / push-consumer ]', () => {
     ])
     expect(numEvents(stream)).eq(0)
   })
+
+  it('[ lazy-sync-readable - empty / push-consumer ]', async () => {
+    const data = makeNumbers(0)
+    const stream = readable({ eager: false, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ lazy-async-readable - empty / push-consumer ]', async () => {
+    const data = makeNumbers(0)
+    const stream = readable({ eager: false, delayMs: 10, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-sync-readable - empty / push-consumer ]', async () => {
+    const data = makeNumbers(0)
+    const stream = readable({ eager: true, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-async-readable - empty / push-consumer ]', async () => {
+    const data = makeNumbers(0)
+    const stream = readable({ eager: true, delayMs: 10, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
 })
 
 describe('[ readable / pull-consumer ]', () => {
