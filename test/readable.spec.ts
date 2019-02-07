@@ -1,17 +1,19 @@
+import { Readable } from 'stream'
 import debug from 'debug'
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 import fn from 'test-fn'
 import readable from '../src/readable'
-import writable from '../src/writable'
 import pushConsumer from '../src/push-consumer'
 import pullConsumer from '../src/pull-consumer'
 import finished from './stream-finished'
 import numEvents from './num-events'
 import makeStrings from './make-strings'
+import makeNumbers from './make-numbers'
 
 const logReadable = debug('nst:readable')
 const logConsumer = debug('nst:consumer')
+const destroyFn = (stream: Readable) => () => stream.destroy()
 
 /**
  * LAZY PRODUCER
@@ -197,7 +199,7 @@ describe('[ readable / push-consumer ]', () => {
     expect(numEvents(stream)).eq(0)
   })
 
-  it('[ push-consumer - unsubscribe ]', async () => {
+  it('[ eager-sync-readable / push-consumer - unsubscribe ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
     const stream = readable({ eager: true, log: logReadable })({ encoding: 'utf8' })(data)
@@ -209,6 +211,38 @@ describe('[ readable / push-consumer ]', () => {
     await finished(stream)
 
     expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-sync-readable - destroy / push-consumer ]', async () => {
+    const data = makeNumbers(4)
+    const stream = readable({ eager: true, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([
+      [0], [1], [2], [3],
+    ])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ lazy-async-readable - destroy / push-consumer ]', async () => {
+    const data = makeNumbers(4)
+    const stream = readable({ eager: false, delayMs: 10, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([
+      [0],
+    ])
     expect(numEvents(stream)).eq(0)
   })
 })

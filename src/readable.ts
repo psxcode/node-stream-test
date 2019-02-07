@@ -1,6 +1,7 @@
 /* tslint:disable no-conditional-assignment no-empty */
 import { Readable, ReadableOptions } from 'stream'
 import { iterate } from 'iterama'
+import { waitTime as wait } from '@psxcode/wait'
 import noop from './noop'
 import isPositive from './is-positive-number'
 
@@ -14,6 +15,7 @@ export type MakeReadableOptions = {
 
 const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, delayMs }: MakeReadableOptions) =>
   (readableOptions: ReadableOptions) => (iterable: Iterable<any>) => {
+    let unsubscribe: (() => void) | undefined
     const it = iterate(iterable)
     let i = 0
 
@@ -69,7 +71,7 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
 
     const asyncHandler = function (this: Readable) {
       log('async read started')
-      setTimeout(syncHandler.bind(this), delayMs!)
+      unsubscribe = wait(syncHandler.bind(this))(delayMs)
     }
 
     const readable = new Readable({
@@ -77,6 +79,10 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
       read: isPositive(delayMs)
         ? asyncHandler
         : syncHandler,
+      destroy () {
+        unsubscribe && unsubscribe()
+        this.push(null)
+      },
     })
 
     readable.on('removeListener', (name) => {
