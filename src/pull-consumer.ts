@@ -19,7 +19,7 @@ const pullConsumer = ({ log = noop, delayMs, readSizeLimit, eager, continueOnErr
 
       let chunk: any
       log('eager read at %d begin', i)
-      while (chunk = stream.read(readSizeLimit)) {
+      while ((chunk = stream.read(readSizeLimit)) !== null) {
         sink(chunk)
         ++i
       }
@@ -30,7 +30,7 @@ const pullConsumer = ({ log = noop, delayMs, readSizeLimit, eager, continueOnErr
 
       log('lazy read at %d begin', i)
       const chunk = stream.read(readSizeLimit)
-      if (chunk) {
+      if (chunk !== null) {
         sink(chunk)
         ++i
       }

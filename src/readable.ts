@@ -44,9 +44,9 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
       log('push %d', i)
 
       const isOk = this.push(
-        iteratorResult.value === null
-          ? undefined
-          : iteratorResult.value
+        iteratorResult.value !== null
+          ? iteratorResult.value
+          : undefined
       )
 
       if (!isOk) {

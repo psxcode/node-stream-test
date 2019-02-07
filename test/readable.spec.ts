@@ -8,12 +8,17 @@ import pushConsumer from '../src/push-consumer'
 import pullConsumer from '../src/pull-consumer'
 import finished from './stream-finished'
 import numEvents from './num-events'
+import printEvents from './print-events'
 import makeStrings from './make-strings'
 import makeNumbers from './make-numbers'
 
 const logReadable = debug('nst:readable')
 const logConsumer = debug('nst:consumer')
-const destroyFn = (stream: Readable) => () => stream.destroy()
+const destroyLog = debug('nst:destroy')
+const destroyFn = (stream: Readable) => (value: any) => {
+  destroyLog('destroying stream', value)
+  stream.destroy()
+}
 
 /**
  * LAZY PRODUCER
@@ -468,6 +473,38 @@ describe('[ readable / pull-consumer ]', () => {
     await finished(stream)
 
     expect(spy.calls).deep.eq([])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ eager-sync-readable - destroy / eager-pull-consumer ]', async () => {
+    const data = makeNumbers(4)
+    const stream = readable({ eager: true, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([
+      [0], [1], [2], [3],
+    ])
+    expect(numEvents(stream)).eq(0)
+  })
+
+  it('[ lazy-async-readable - destroy / eager-pull-consumer ]', async () => {
+    const data = makeNumbers(4)
+    const stream = readable({ eager: false, delayMs: 10, log: logReadable })({ objectMode: true })(data)
+    const spy = fn(destroyFn(stream))
+    const subscribeConsumer = pullConsumer({ eager: true, log: logConsumer })(spy)(stream)
+
+    subscribeConsumer()
+
+    await finished(stream)
+
+    expect(spy.calls).deep.eq([
+      [0],
+    ])
     expect(numEvents(stream)).eq(0)
   })
 })
