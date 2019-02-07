@@ -18,6 +18,7 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
     let unsubscribe: (() => void) | undefined
     const it = iterate(iterable)
     let i = 0
+    let done = false
 
     const push = function (this: Readable): boolean {
       if (i === errorAtStep) {
@@ -34,7 +35,7 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
 
       const iteratorResult = it.next()
 
-      if (iteratorResult.done) {
+      if (done || iteratorResult.done) {
         log('complete at %d', i)
         this.push(null)
 
@@ -91,8 +92,8 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
       if (name === 'data' || name === 'readable') {
         if (readable.listenerCount('data') === 0 && readable.listenerCount('readable') === 0) {
           log('no more listeners for data - draining data')
-          unsubscribe && unsubscribe()
-          readable.resume()
+          /* when "read" invoked by node, you have to "push" something. Calling "resume" does not work */
+          done = true
         }
       }
     })
