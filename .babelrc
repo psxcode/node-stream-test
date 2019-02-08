@@ -8,7 +8,6 @@
             "targets": {
               "node": "8"
             },
-            "modules": false,
           }
         ],
         "@babel/preset-typescript",
