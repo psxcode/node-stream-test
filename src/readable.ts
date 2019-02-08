@@ -93,6 +93,8 @@ const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, del
           log('no more listeners for data - draining data')
           /* when "read" invoked by node, you have to "push" something. Calling "resume" does not work */
           done = true
+          /* in some cases "push(null)" has no effect, but "resume" does */
+          readable.resume()
         }
       }
     })
