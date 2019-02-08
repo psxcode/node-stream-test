@@ -9,15 +9,20 @@
   "homepage": "https://github.com/psxcode/node-stream-test",
   "scripts": {
     "test": "NODE_ENV=test nyc mocha 'test/*.spec.ts'",
-    "build": "rimraf build && tsc -p tsconfig.build.json",
-    "copy": "cp ./{package.json,readme.md,LICENSE} ./build"
+    "build": "rimraf build && yarn build:js && yarn build:dts",
+    "copy": "cp ./{package.json,readme.md,LICENSE} ./build",
+    "build:dts": "tsc --emitDeclarationOnly -p tsconfig.build.json",
+    "build:js": "NODE_ENV=production babel src --out-dir build --extensions '.ts,.js' --source-maps 'inline'"
   },
   "dependencies": {
+    "@babel/runtime": "^7.3.1",
     "@psxcode/wait": "^0.1.1",
     "iterama": "^0.1.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
+    "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-typescript": "^7.1.0",
     "@babel/register": "^7.0.0",
@@ -26,6 +31,7 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.21",
     "babel-plugin-istanbul": "^5.1.0",
+    "babel-preset-minify": "^0.5.0",
     "chai": "^4.2.0",
     "debug": "^4.1.1",
     "eslint": "^5.13.0",
