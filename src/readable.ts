@@ -1,4 +1,3 @@
-/* tslint:disable no-conditional-assignment no-empty */
 import { Readable, ReadableOptions } from 'stream'
 import { iterate } from 'iterama'
 import { waitTime as wait } from '@psxcode/wait'

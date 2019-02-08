@@ -1,4 +1,3 @@
-/* tslint:disable no-conditional-assignment no-empty */
 import noop from './noop'
 import isPositive from './is-positive-number'
 
