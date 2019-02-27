@@ -16,8 +16,10 @@ const pushConsumer = ({ log = noop, continueOnError }: PushConsumerOptions = {})
     const onErrorEvent = (err?: Error) => {
       log('received \'error\' event at %d', i)
       if (!continueOnError) {
+        log('breaking on \'error\' event at %d', i)
         unsubscribe()
       }
+      log('continuing on \'error\' event at %d', i)
     }
     const unsubscribe = () => {
       log('unsubscribe at %d', i)

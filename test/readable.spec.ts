@@ -149,7 +149,7 @@ describe('[ readable / push-consumer ]', () => {
   it('[ eager-sync-readable - error break / push-consumer - error break ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
-    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 2 })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
     subscribeConsumer()
@@ -163,7 +163,7 @@ describe('[ readable / push-consumer ]', () => {
   it('[ eager-sync-readable - error continue / push-consumer - error break ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
-    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0, continueOnError: true })({ encoding: 'utf8' })(data)
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 2, continueOnError: true })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer })(spy)(stream)
 
     subscribeConsumer()
@@ -177,21 +177,24 @@ describe('[ readable / push-consumer ]', () => {
   it('[ eager-sync-readable - error break / push-consumer - error continue ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
-    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0 })({ encoding: 'utf8' })(data)
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 2 })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer, continueOnError: true })(spy)(stream)
 
     subscribeConsumer()
 
     await finished(stream)
 
-    expect(spy.calls).deep.eq([])
+    expect(spy.calls).deep.eq([
+      ['#0000000'],
+      ['#0000001'],
+    ])
     expect(numEvents(stream)).eq(0)
   })
 
   it('[ eager-sync-readable - error continue / push-consumer - error continue ]', async () => {
     const data = makeStrings(8)
     const spy = fn(debug('nst:sink: '))
-    const stream = readable({ eager: true, log: logReadable, errorAtStep: 0, continueOnError: true })({ encoding: 'utf8' })(data)
+    const stream = readable({ eager: true, log: logReadable, errorAtStep: 2, continueOnError: true })({ encoding: 'utf8' })(data)
     const subscribeConsumer = pushConsumer({ log: logConsumer, continueOnError: true })(spy)(stream)
 
     subscribeConsumer()
