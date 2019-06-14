@@ -1,5 +1,7 @@
 # Node Stream Test
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/psxcode/node-stream-test.svg)](https://greenkeeper.io/)
+
 ## Install
 ```
 npm install node-stream-test
