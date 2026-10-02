@@ -1,109 +1,107 @@
-import { Readable, ReadableOptions } from 'stream'
-import { iterate } from 'iterama'
-import { waitTime as wait } from '@psxcode/wait'
-import noop from './noop'
-import isPositive from './is-positive-number'
+import { Readable } from "node:stream";
+import type { ReadableOptions } from "node:stream";
+import { iterate } from "iterama";
+import { noop } from "./noop.ts";
+import { isPositiveNumber } from "./is-positive-number.ts";
+import { waitTime } from "./wait.ts";
 
 export type MakeReadableOptions = {
-  log?: typeof console.log,
-  errorAtStep?: number,
-  continueOnError?: boolean
-  delayMs?: number,
-  eager: boolean,
-}
+  log?: typeof console.log;
+  errorAtStep?: number;
+  continueOnError?: boolean;
+  delayMs?: number;
+  eager: boolean;
+};
 
-const readable = ({ log = noop, errorAtStep, continueOnError = false, eager, delayMs }: MakeReadableOptions) =>
-  (readableOptions: ReadableOptions) => (iterable: Iterable<any>) => {
-    let unsubscribe: (() => void) | undefined
-    const it = iterate(iterable)
-    let i = 0
-    let done = false
+export const readable =
+  ({ log = noop, errorAtStep, continueOnError = false, eager, delayMs }: MakeReadableOptions) =>
+  (readableOptions: ReadableOptions) =>
+  (iterable: Iterable<any>) => {
+    let unsubscribe: (() => void) | undefined;
+    const it = iterate(iterable);
+    let i = 0;
+    let done = false;
 
     const push = function (this: Readable): boolean {
       if (i === errorAtStep) {
-        log('emitting error at %d', i)
-        this.emit('error', new Error(`error at ${i}`))
+        log("emitting error at %d", i);
+        this.emit("error", new Error(`error at ${i}`));
 
         if (!continueOnError) {
-          log('break on error at %d', i)
-          this.push(null)
+          log("break on error at %d", i);
+          this.push(null);
 
-          return false
+          return false;
         }
       }
 
-      const iteratorResult = it.next()
+      const iteratorResult = it.next();
 
       if (done || iteratorResult.done) {
-        log('complete at %d', i)
-        this.push(null)
+        log("complete at %d", i);
+        this.push(null);
 
-        return false
+        return false;
       }
 
-      log('push %d', i)
+      log("push %d", i);
 
-      const isOk = this.push(
-        iteratorResult.value !== null
-          ? iteratorResult.value
-          : undefined
-      )
+      const isOk = this.push(iteratorResult.value !== null ? iteratorResult.value : undefined);
 
       if (!isOk) {
-        log('backpressure at %d', i)
+        log("backpressure at %d", i);
       }
 
-      ++i
+      ++i;
 
-      return isOk
-    }
+      return isOk;
+    };
 
     const syncHandler = function (this: Readable) {
       if (eager) {
-        log('eager read begin at %d', i)
+        log("eager read begin at %d", i);
         while (push.call(this)) {}
-        log('eager read end at %d', i)
+        log("eager read end at %d", i);
       } else {
-        log('lazy read %d', i)
-        push.call(this)
+        log("lazy read %d", i);
+        push.call(this);
       }
-    }
+    };
 
     const asyncHandler = function (this: Readable) {
-      log('async read started')
-      unsubscribe = wait(syncHandler.bind(this))(delayMs)
-    }
+      log("async read started");
+      unsubscribe = waitTime(syncHandler.bind(this))(delayMs!);
+    };
 
-    const readable = new Readable({
+    const stream = new Readable({
       ...readableOptions,
-      read: isPositive(delayMs)
-        ? asyncHandler
-        : syncHandler,
-      destroy () {
-        unsubscribe && unsubscribe()
-        this.push(null)
+      read: isPositiveNumber(delayMs) ? asyncHandler : syncHandler,
+      destroy(err, cb) {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+        this.push(null);
+        cb(err);
       },
-    })
+    });
 
-    readable.on('removeListener', (name) => {
-      log('removeListener for \'%s\', total: %d', name, readable.listenerCount(name))
+    stream.on("removeListener", (name) => {
+      log("removeListener for '%s', total: %d", name, stream.listenerCount(name));
 
-      if (name === 'data' || name === 'readable') {
-        if (readable.listenerCount('data') === 0 && readable.listenerCount('readable') === 0) {
-          log('no more listeners for data - draining data')
+      if (name === "data" || name === "readable") {
+        if (stream.listenerCount("data") === 0 && stream.listenerCount("readable") === 0) {
+          log("no more listeners for data - draining data");
           /* when "read" invoked by node, you have to "push" something. Calling "resume" does not work */
-          done = true
+          done = true;
           /* in some cases "push(null)" has no effect, but "resume" does */
-          setImmediate(() => readable.resume())
+          setImmediate(() => stream.resume());
         }
       }
-    })
+    });
 
-    readable.on('newListener', (name) => {
-      log('newListener for \'%s\', total: %d', name, readable.listenerCount(name) + 1)
-    })
+    stream.on("newListener", (name) => {
+      log("newListener for '%s', total: %d", name, stream.listenerCount(name) + 1);
+    });
 
-    return readable
-  }
-
-export default readable
+    return stream;
+  };

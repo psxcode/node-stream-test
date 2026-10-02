@@ -1,22 +1,29 @@
-import { Stream } from 'stream'
-import { waitTimePromise } from '@psxcode/wait'
+import type { EventEmitter } from "node:events";
+import { waitTimePromise } from "./wait.ts";
 
-const streamFinished = async (stream: Stream) => {
-  await new Promise((resolve) => {
-    const unsub = () => {
-      stream.removeListener('end', unsub)
-      stream.removeListener('finish', unsub)
-      stream.removeListener('close', unsub)
+/*
+ * Wait until the stream is fully closed instead of stopping at the first error, so that
+ * streams with continueOnError deliver the rest of their data and every listener is removed.
+ */
+const settle = (stream: EventEmitter) =>
+  new Promise<void>((resolve) => {
+    const state = stream as any;
+    if (state.closed || state.destroyed) return resolve();
 
-      resolve()
-    }
+    const onError = () => {};
+    const onClose = () => {
+      stream.removeListener("close", onClose);
+      stream.removeListener("error", onError);
+      resolve();
+    };
 
-    stream.addListener('end', unsub)
-    stream.addListener('finish', unsub)
-    stream.addListener('close', unsub)
-  })
+    stream.on("close", onClose);
+    stream.on("error", onError);
+  });
 
-  await waitTimePromise(10)
-}
+const streamFinished = async (...streams: EventEmitter[]) => {
+  await Promise.all(streams.map(settle));
+  await waitTimePromise(10);
+};
 
-export default streamFinished
+export { streamFinished };

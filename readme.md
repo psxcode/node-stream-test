@@ -5,6 +5,8 @@
 npm install node-stream-test
 ```
 
+ESM only, requires Node.js 22 or newer.
+
 ## Usage
 
 ### `readable`
@@ -50,7 +52,7 @@ creates test `Writable` stream, simulating `sync`/`async` behaviors
 `(options: MakeWritableOptions) => (writableOptions: WritableOptions) => (sink: (chunk: any) => void) => Writable`
 ```ts
 type MakeWritableOptions = {
-  log: typeof console.log,       // provide debug logger or noop
+  log?: typeof console.log,      // provide debug logger or noop
   delayMs?: number               // simulate async
   errorAtStep?: number           // emit 'error' event at certain step
 }
@@ -68,14 +70,13 @@ const testWritable = writable({
   delayMs: 10                    // delay 10ms
 })({
   objectMode: true               // provide Node Writable configuration
-})
+})(
+  (chunk) => {}                  // sink, called on every write
+)
 
 // pipe the stream into test-writable
-stream.pipe(
-  stream,
-  testWritable
-).on('data', () => {})
-  .on('end', () => {})
+stream.pipe(testWritable)
+  .on('finish', () => {})
 ```
 
 ### `producer`
@@ -83,12 +84,13 @@ writes `chunks` to a stream
 `(options: ProducerOptions) => (iterable: Iterable<any>) => (stream: WritableStream) => () => void`
 ```ts
 type ProducerOptions = {
-  log: typeof console.log,        // provide debug logger or noop
-  eager: boolean                  // eager or lazy producer
+  log?: typeof console.log,       // provide debug logger or noop
+  eager: boolean,                 // eager or lazy producer
+  continueOnError?: boolean       // whether should producer continue on error or break
 }
 ```
 > `eager` producer writes `chunks` in a synchronous loop until `highWatermark` reached.  
-`lazy` producer writes one `chunk` on `drain` event.
+`lazy` producer writes one `chunk`, then waits for the write callback or `drain` event.
 ```ts
 import { producer } from 'node-stream-test'
 
@@ -100,19 +102,22 @@ const beginProduce = producer({
   log: console.log,                // output debug info to console
   eager: true                      // eager producer
 })(
-  [1, 2, 3, 4, 5],                 // data to write
-  0                                // write all data
+  [1, 2, 3, 4, 5]                 // data to write
 )(
   stream                           // write to this stream
 )
+
+// start producing
+beginProduce()
 ```
 
-### `push-consumer`
+### `pushConsumer`
 simple `on('data')` consumer with logging
-`(options: DataConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
+`(options: PushConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
 type PushConsumerOptions = {
-  log: typeof console.log    // provide debug logger or noop
+  log?: typeof console.log,      // provide debug logger or noop
+  continueOnError?: boolean      // whether should consumer continue on error or break
 }
 ```
 ```ts
@@ -121,24 +126,28 @@ import { pushConsumer } from 'node-stream-test'
 // We have the following stream
 declare var stream: ReadableStream
 
-pushConsumer({ 
+const subscribeConsumer = pushConsumer({
   log: console.log           // output debug info to console
 })(
   (chunk: string) => {}      // your callback on every `data` event
 )(
-  stream,                    // stream to consume
+  stream // stream to consume
 )
+
+// start consuming
+subscribeConsumer()
 ```
 
-### `pull-consumer`
+### `pullConsumer`
 simple `on('readable')` consumer with `sync/async` behavior and logging
-`(options: ReadableConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
+`(options: PullConsumerOptions) => (sink: (chunk: any) => void) => (stream: ReadableStream) => () => void`
 ```ts
 type PullConsumerOptions = {
-  log: typeof console.log,       // provide debug logger or noop
+  log?: typeof console.log,      // provide debug logger or noop
+  eager: boolean,                // eager or lazy behavior
   delayMs?: number,              // simulate async
-  eager?: boolean,               // eager or lazy behavior
-  readSize?: number              // how much data to read on each 'readable' event
+  readSizeLimit?: number,        // how much data to read on each 'readable' event
+  continueOnError?: boolean      // whether should consumer continue on error or break
 }
 ```
 > `delayMs` is a time between `readable` event and actual `read` call on stream.
@@ -152,14 +161,17 @@ import { pullConsumer } from 'node-stream-test'
 // We have the following stream
 declare var stream: ReadableStream
 
-pullConsumer({
+const subscribeConsumer = pullConsumer({
   log: console.log,                // print debug info to console
   delayMs: 10,                     // delay 10ms
   eager: false,                    // lazy behavior
-  readSize: undefined              // read all available data
+  readSizeLimit: undefined         // read all available data
 })(
   (chunk: string) => {}            // your callback on `read` call, after `readable` event
 )(
-  stream,                          // stream to consume
+  stream // stream to consume
 )
+
+// start consuming
+subscribeConsumer()
 ```

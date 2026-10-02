@@ -1,9 +1,9 @@
 const makeNumbers = (length: number): Iterable<number> => ({
-  * [Symbol.iterator] () {
+  *[Symbol.iterator]() {
     for (let i = 0; i < length; ++i) {
-      yield i
+      yield i;
     }
   },
-})
+});
 
-export default makeNumbers
+export { makeNumbers };

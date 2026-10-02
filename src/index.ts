@@ -1,5 +1,10 @@
-export { default as readable } from './readable'
-export { default as writable } from './writable'
-export { default as pushConsumer } from './push-consumer'
-export { default as pullConsumer } from './pull-consumer'
-export { default as producer } from './producer'
+export { readable } from "./readable.ts";
+export { writable } from "./writable.ts";
+export { pushConsumer } from "./push-consumer.ts";
+export { pullConsumer } from "./pull-consumer.ts";
+export { producer } from "./producer.ts";
+export type { MakeReadableOptions } from "./readable.ts";
+export type { MakeWritableOptions } from "./writable.ts";
+export type { PushConsumerOptions } from "./push-consumer.ts";
+export type { PullConsumerOptions } from "./pull-consumer.ts";
+export type { ProducerOptions } from "./producer.ts";

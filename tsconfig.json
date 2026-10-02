@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "lib": ["esnext"],
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "strict": true,
-    "allowSyntheticDefaultImports": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node"],
     "noEmit": true,
     "pretty": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src", "test"]
 }

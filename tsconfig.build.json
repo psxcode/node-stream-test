@@ -1,13 +1,14 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "outDir": "build",
+    "rootDir": "src",
     "declaration": true,
-    "noEmit": false
+    "noEmit": false,
+    "sourceMap": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }
